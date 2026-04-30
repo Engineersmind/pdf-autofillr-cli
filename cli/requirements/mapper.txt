@@ -1,0 +1,4 @@
+# pdf-autofillr-cli — mapper module only
+# Install with: pip install "pdf-autofillr-cli[mapper]"
+-r base.txt
+pdf-autofillr-mapper>=1.0.0

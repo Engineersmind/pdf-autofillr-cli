@@ -1,0 +1,8 @@
+{
+  "project": "pdf-autofillr-cli",
+  "description": "Unified CLI for all pdf-autofillr modules",
+  "primary_language": "python",
+  "package_dir": "packages/cli",
+  "test_command": "cd packages/cli && pytest tests/ -v",
+  "install_command": "cd packages/cli && pip install -e '.[dev]'"
+}

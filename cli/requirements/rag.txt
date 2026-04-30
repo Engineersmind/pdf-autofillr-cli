@@ -1,0 +1,4 @@
+# pdf-autofillr-cli — RAG module only
+# Install with: pip install "pdf-autofillr-cli[rag]"
+-r base.txt
+pdf-autofillr-rag>=0.2.0

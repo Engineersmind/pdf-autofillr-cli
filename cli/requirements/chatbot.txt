@@ -1,0 +1,4 @@
+# pdf-autofillr-cli — chatbot module only
+# Install with: pip install "pdf-autofillr-cli[chatbot]"
+-r base.txt
+pdf-autofillr-chatbot>=0.2.0
