@@ -1,0 +1,4 @@
+# pdf-autofillr-cli — doc-upload module only
+# Install with: pip install "pdf-autofillr-cli[doc-upload]"
+-r base.txt
+pdf-autofillr-doc-upload>=0.1.0
