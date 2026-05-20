@@ -1,12 +1,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-pdffillr.ai-blue)](https://pdffillr.ai)
 
 <div align="center">
 
 # pdf-autofillr CLI
 
 **Fill PDF forms from your terminal using any LLM — batch processing, scriptable, CI-friendly.**
-
-[![Platform](https://img.shields.io/badge/platform-pdffillr.ai-blue)](https://pdffillr.ai)
 
 [**Quick Start**](#quick-start) · [**Python SDK**](https://github.com/EngineersMind/pdf-autofillr-python-sdk) · [**Node.js SDK**](https://github.com/EngineersMind/pdf-autofillr-node-sdk) · [**Live Platform**](https://pdffillr.ai)
 
@@ -15,6 +14,8 @@
 ---
 
 > **Status:** Under active development. For production use today, see the [Python SDK](https://github.com/EngineersMind/pdf-autofillr-python-sdk) or the [live platform at pdffillr.ai](https://pdffillr.ai).
+>
+> **Note:** The CLI is published as standalone packages. This repository tracks design, issues, and roadmap. See installation instructions below for the published packages.
 
 ## What it does
 
@@ -22,11 +23,13 @@
 
 ## Installation
 
+**Python (recommended):**
+
 ```bash
 pip install pdf-autofillr-cli
 ```
 
-Or via npm:
+**npm:**
 
 ```bash
 npm install -g @engineersmind/pdf-autofillr-cli
@@ -67,11 +70,11 @@ pdf-autofillr embed form.pdf --keys name email --model claude-3-5-haiku-latest
 ## Configuration
 
 ```bash
-# Set API key
+# Set API key via environment variable
 export PDF_AUTOFILLR_API_KEY=your_key_here
 export OPENAI_API_KEY=your_key_here  # or ANTHROPIC_API_KEY, etc.
 
-# Or use a config file
+# Or persist via config command
 pdf-autofillr config --api-key your_key
 ```
 
@@ -96,7 +99,7 @@ pdf-autofillr config --api-key your_key
 
 ## Contributing
 
-Issues and pull requests welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
+Open an [issue](https://github.com/EngineersMind/pdf-autofillr-cli/issues) to report a bug or suggest a feature.
 
 ## License
 
