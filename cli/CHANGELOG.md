@@ -10,6 +10,15 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Initial release of the unified CLI for all pdf-autofillr modules
+...
+
+### Fixed
+- Remove unused imports flagged by CodeQL (`os`, `json`, `Optional`, `patch`, `MagicMock`, `sys`)
+
+## [0.1.0] - 2026-04-30
+
+### Added
+- Initial release of the unified CLI for all pdf-autofillr modules
 - `pdf-autofillr` entry point — single command for the entire suite
 - `status` — checks installed modules, config files, and env variables
 - `setup` — first-time setup wizard for any or all modules

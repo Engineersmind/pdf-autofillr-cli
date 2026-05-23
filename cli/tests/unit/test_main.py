@@ -1,7 +1,8 @@
 """Unit tests for main parser, status, and setup commands."""
 import sys
 import pytest
-from unittest.mock import patch, MagicMock
+# from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from pdf_autofillr_cli.main import build_parser, main
 
 

@@ -7,7 +7,8 @@ Full RAG workflow from Python:
 
 Requires: pip install "pdf-autofillr-cli[rag]"
 """
-import subprocess, json
+# import subprocess, json
+import subprocess
 
 def cli(*args):
     r = subprocess.run(["pdf-autofillr"] + list(args), capture_output=True, text=True)
