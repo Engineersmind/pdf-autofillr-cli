@@ -138,7 +138,7 @@ All 69 tests must pass before opening a PR.
 5. Push version tag — CI publishes to PyPI automatically
 
 ```bash
-git tag cli-v0.2.1 && git push origin cli-v0.2.1
+git tag cli-v0.2.2 && git push origin cli-v0.2.2
 ```
 
 | Tag | PyPI package |

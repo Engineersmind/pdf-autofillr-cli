@@ -12,7 +12,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 | Package | Latest | Changelog |
 |---------|--------|-----------|
-| pdf-autofillr-cli | 0.2.1 | [cli/CHANGELOG.md](cli/CHANGELOG.md) |
+| pdf-autofillr-cli | 0.2.2 | [cli/CHANGELOG.md](cli/CHANGELOG.md) |
 
 ---
 
@@ -24,6 +24,15 @@ Versioning: [Semantic Versioning](https://semver.org/)
 - `pdf-autofillr-cli doctor` — extended diagnostics with fix suggestions
 - Shell completion for bash, zsh, and fish
 - `--output json` flag on all commands for scripting
+
+---
+
+## [cli-0.2.2] — 2026-05-23
+
+### Fixed
+
+- `setup` now copies `usage/` guides into working directory (alongside `configs/` and `.env`)
+- Previously only showed the path inside the package — now extracts to your project folder
 
 ---
 
