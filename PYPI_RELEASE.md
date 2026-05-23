@@ -193,7 +193,7 @@ pip install --index-url https://test.pypi.org/simple/ pdf-autofillr-cli
 
 | Version | Date | PyPI |
 |---------|------|------|
-| 0.1.0 | 2026-04-30 | https://pypi.org/project/pdf-autofillr-cli/0.1.0/ |
+| 0.1.1 | 2026-04-30 | https://pypi.org/project/pdf-autofillr-cli/0.1.1/ |
 
 ---
 

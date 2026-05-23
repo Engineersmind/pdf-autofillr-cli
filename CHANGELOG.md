@@ -12,7 +12,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 | Package | Latest | Changelog |
 |---------|--------|-----------|
-| pdf-autofillr-cli | 0.1.0 | [cli/CHANGELOG.md](cli/CHANGELOG.md) |
+| pdf-autofillr-cli | 0.1.1 | [cli/CHANGELOG.md](cli/CHANGELOG.md) |
 
 ---
 
@@ -24,6 +24,16 @@ Versioning: [Semantic Versioning](https://semver.org/)
 - `pdf-autofillr doctor` — extended diagnostics with fix suggestions
 - Shell completion for bash, zsh, and fish
 - `--output json` flag on all commands for scripting
+
+---
+
+## [cli-0.1.1] — 2026-05-23
+
+### Fixed
+
+- Remove unused imports flagged by CodeQL (`os`, `json`, `Optional`, `patch`, `MagicMock`, `sys`)
+- Remove `pass` from non-empty `except` block in `cmd_rag.py`
+- Remove unused `patch` import from `test_utils.py`
 
 ---
 

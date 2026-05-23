@@ -4,7 +4,7 @@
 
 | Package | Version | Supported |
 |---------|---------|-----------|
-| pdf-autofillr-cli | 0.1.0 | ✅ |
+| pdf-autofillr-cli | 0.1.1 | ✅ |
 | Any previous version | < latest | ❌ |
 
 ---

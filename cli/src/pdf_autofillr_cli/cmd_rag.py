@@ -1,5 +1,5 @@
 """
-pdf-autofillr rag <command>
+pdf-autofillr-cli rag <command>
 
 Wraps the ragpdf CLI with all its subcommands:
   init-vectors, predict, feedback, metrics, system-info, error-analytics
@@ -17,7 +17,7 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
         "rag",
         help="RAG field prediction commands",
-        description="Self-learning RAG field prediction. Run 'pdf-autofillr rag --help'.",
+        description="Self-learning RAG field prediction. Run 'pdf-autofillr-cli rag --help'.",
     )
     sub = p.add_subparsers(dest="rag_command", metavar="COMMAND")
 
@@ -77,7 +77,7 @@ def run(args: argparse.Namespace) -> int:
     require_module("ragpdf", "pip install pdf-autofillr-rag")
 
     if not args.rag_command:
-        print("Usage: pdf-autofillr rag <command>")
+        print("Usage: pdf-autofillr-cli rag <command>")
         print("Commands: init-vectors, predict, feedback, metrics, system-info, error-analytics")
         return 1
 

@@ -1,5 +1,5 @@
 """
-pdf-autofillr mapper <command>
+pdf-autofillr-cli mapper <command>
 
 Wraps the mapper module: embed a blank PDF form, then fill it with data.
 """
@@ -15,8 +15,8 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
         help="Mapper commands: embed and fill PDF forms",
         description=(
             "Two-step workflow:\n"
-            "  1. pdf-autofillr mapper embed --pdf form.pdf --user u1 --id lp_v1\n"
-            "  2. pdf-autofillr mapper fill  --pdf form.pdf --user u1 --id lp_v1 --data data.json\n"
+            "  1. pdf-autofillr-cli mapper embed --pdf form.pdf --schema configs/form_keys.json\n"
+            "  2. pdf-autofillr-cli mapper fill  --pdf form.pdf --data data.json\n"
         ),
     )
     sub = p.add_subparsers(dest="mapper_command", metavar="COMMAND")
@@ -24,14 +24,15 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
     # ── embed ─────────────────────────────────────────────────────────────
     emb = sub.add_parser("embed", help="Embed a blank PDF template (run once per form)")
     emb.add_argument("--pdf",    required=True, help="Path to blank PDF form")
-    emb.add_argument("--user",   required=True, help="User ID")
-    emb.add_argument("--id",     required=True, dest="pdf_doc_id", help="Document ID")
+    emb.add_argument("--schema", default="configs/form_keys.json", help="Path to form_keys.json")
+    emb.add_argument("--user",   default="default", help="User ID (default: default)")
+
 
     # ── fill ──────────────────────────────────────────────────────────────
     fil = sub.add_parser("fill", help="Fill an embedded PDF with user data")
     fil.add_argument("--pdf",    required=True, help="Path to blank PDF form")
-    fil.add_argument("--user",   required=True, help="User ID")
-    fil.add_argument("--id",     required=True, dest="pdf_doc_id", help="Document ID")
+    fil.add_argument("--user",   default="default", help="User ID (default: default)")
+
     fil.add_argument("--data",   required=True,
                      help="Path to JSON file with user_data dict, or inline JSON string")
 
@@ -46,10 +47,10 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def run(args: argparse.Namespace) -> int:
     from pdf_autofillr_cli.utils import require_module
-    require_module("pdf_autofillr_mapper", "pip install pdf-autofillr-mapper")
+    require_module("pdf_autofillr_mapper", 'pip install "pdf-autofillr[mapper]"')
 
     if not args.mapper_command:
-        print("Usage: pdf-autofillr mapper <command>")
+        print("Usage: pdf-autofillr-cli mapper <command>")
         print("Commands: embed, fill, start")
         return 1
 
@@ -64,37 +65,54 @@ def run(args: argparse.Namespace) -> int:
 
 
 def _embed(args: argparse.Namespace) -> int:
-    from pdf_autofillr_mapper import MapperOrchestrator  # type: ignore
+    import asyncio
+    from pdf_autofillr_mapper import PDFPipeline, MapperConfig  # type: ignore
 
-    orch = MapperOrchestrator.from_env()
-    result = orch.make_embed_file(
-        pdf_path=args.pdf,
-        user_id=args.user,
-        pdf_doc_id=args.pdf_doc_id,
-    )
-    print(f"\n  ✅  Embedded: {result.embedded_pdf_path}\n")
+    cfg = MapperConfig.from_env()
+    pipeline = PDFPipeline(mapper_config=cfg)
+    # schema path required — use --schema or default form_keys.json
+    schema = getattr(args, "schema", "configs/form_keys.json")
+    result = asyncio.run(pipeline.run_all(
+        input_pdf_path=args.pdf,
+        input_data_path=schema,
+        keep_intermediates=True,
+    ))
+    print(f"\n  ✅  Embedded: {result['all_outputs']['embedded_pdf']}\n")
     return 0
 
 
 def _fill(args: argparse.Namespace) -> int:
+    import asyncio
     import os
-    from pdf_autofillr_mapper import MapperOrchestrator  # type: ignore
+    import tempfile
+    from pathlib import Path
+    from pdf_autofillr_mapper import PDFPipeline, MapperConfig  # type: ignore
 
-    # Load user_data from file or inline JSON
+    # Load user_data and write to temp file if inline JSON
     if os.path.exists(args.data):
-        with open(args.data, encoding="utf-8") as fh:
-            user_data = json.load(fh)
+        data_path = args.data
     else:
         user_data = json.loads(args.data)
+        tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8")
+        json.dump(user_data, tmp)
+        tmp.close()
+        data_path = tmp.name  # cleaned up by OS on process exit
 
-    orch = MapperOrchestrator.from_env()
-    result = orch.fill_pdf(
-        pdf_path=args.pdf,
-        user_id=args.user,
-        pdf_doc_id=args.pdf_doc_id,
-        user_data=user_data,
-    )
-    print(f"\n  ✅  Filled PDF: {result.filled_pdf_path}\n")
+    # Find embedded pdf
+    p = Path(args.pdf)
+    embedded = p.parent / f"{p.stem}_embedded.pdf"
+    if not embedded.exists():
+        print(f"\n  ✗  No embedded PDF found: {embedded}")
+        print("  Run first:  pdf-autofillr-cli mapper embed --pdf form.pdf --schema configs/form_keys.json\n")
+        return 1
+
+    cfg = MapperConfig.from_env()
+    pipeline = PDFPipeline(mapper_config=cfg)
+    result = asyncio.run(pipeline.fill(
+        embedded_pdf_path=str(embedded),
+        input_data_path=data_path,
+    ))
+    print(f"\n  ✅  Filled PDF: {result['output_file']}\n")
     return 0
 
 

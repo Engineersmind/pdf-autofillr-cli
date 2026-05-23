@@ -1,76 +1,62 @@
 [build-system]
-requires = ["setuptools>=65.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pdf-autofillr-cli"
-version = "0.1.1"
+version = "0.2.0"
 description = "Unified CLI for all pdf-autofillr modules"
 readme = "README.md"
-requires-python = ">=3.9"
-license = {text = "MIT"}
+requires-python = ">=3.10"
+license = "MIT"
 authors = [
-    {name = "PDF AutoFillr Team", email = "team@pdf-autofiller.com"}
+    {name = "Engineers Mind", email = "Support@pdffillr.ai"}
 ]
-keywords = ["pdf", "cli", "autofill", "command-line"]
+keywords = ["pdf", "cli", "autofill", "command-line", "form-filling"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Utilities",
 ]
 
-# Only hard dependency is the umbrella package
+# Full SDK is the only dependency — all modules included
 dependencies = [
-    "pdf-autofillr>=1.1.0",
+    "pdf-autofillr[all]>=1.1.0",
 ]
 
 [project.optional-dependencies]
-# Install with specific modules
-chatbot    = ["pdf-autofillr[chatbot]"]
-rag        = ["pdf-autofillr[rag]"]
-mapper     = ["pdf-autofillr[mapper]"]
-doc-upload = ["pdf-autofillr[doc-upload]"]
-all        = ["pdf-autofillr[all]"]
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "black>=23.0.0",
     "isort>=5.12.0",
-    "mypy>=1.0.0",
 ]
 
 [project.scripts]
-pdf-autofillr = "pdf_autofillr_cli.main:main"
+pdf-autofillr-cli = "pdf_autofillr_cli.main:main"
 
 [project.urls]
-Homepage      = "https://github.com/Engineersmind/pdf-autofillr"
-Documentation = "https://github.com/Engineersmind/pdf-autofillr/tree/main/packages/cli"
-Repository    = "https://github.com/Engineersmind/pdf-autofillr"
-Issues        = "https://github.com/Engineersmind/pdf-autofillr/issues"
+Homepage      = "https://github.com/Engineersmind/pdf-autofillr-cli"
+Documentation = "https://github.com/Engineersmind/pdf-autofillr-cli/tree/main/cli"
+Repository    = "https://github.com/Engineersmind/pdf-autofillr-cli"
+Issues        = "https://github.com/Engineersmind/pdf-autofillr-cli/issues"
+Platform      = "https://pdffillr.ai"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.black]
 line-length = 100
-target-version = ["py39", "py310", "py311", "py312"]
+target-version = ["py310", "py311", "py312"]
 
 [tool.isort]
 profile = "black"
 line_length = 100
-
-[tool.mypy]
-python_version = "3.9"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

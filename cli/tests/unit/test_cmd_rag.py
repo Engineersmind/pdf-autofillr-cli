@@ -1,4 +1,4 @@
-"""Unit tests for pdf-autofillr rag commands."""
+"""Unit tests for pdf-autofillr-cli rag commands."""
 import json
 import sys
 import argparse

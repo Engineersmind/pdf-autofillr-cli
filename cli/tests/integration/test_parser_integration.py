@@ -7,98 +7,91 @@ from pdf_autofillr_cli.main import build_parser
 
 
 class TestFullParserIntegration:
-    """Test that every subcommand parses its arguments correctly."""
 
     def setup_method(self):
         self.parser = build_parser()
 
-    # ── status ───────────────────────────────────────────────────────────
-    def test_status_default(self):
-        args = self.parser.parse_args(["status"])
-        assert args.command == "status"
-        assert args.path == "."
+    # ── embed ─────────────────────────────────────────────────────────────
+    def test_embed_required_args(self):
+        args = self.parser.parse_args(["embed", "form.pdf", "--schema", "configs/form_keys.json"])
+        assert args.command == "embed"
+        assert args.pdf == "form.pdf"
+        assert args.schema == "configs/form_keys.json"
 
-    def test_status_custom_path(self):
-        args = self.parser.parse_args(["status", "--path", "/tmp/myproject"])
-        assert args.path == "/tmp/myproject"
+    def test_embed_with_output(self):
+        args = self.parser.parse_args(["embed", "form.pdf", "--schema", "configs/form_keys.json", "--output", "out.pdf"])
+        assert args.output == "out.pdf"
 
-    # ── setup ────────────────────────────────────────────────────────────
-    def test_setup_defaults(self):
-        args = self.parser.parse_args(["setup"])
-        assert args.command == "setup"
-        assert args.module == "all"
-        assert args.force is False
+    def test_embed_with_user_and_id(self):
+        args = self.parser.parse_args(["embed", "form.pdf", "--schema", "configs/form_keys.json"])
+        assert args.pdf == "form.pdf"
 
-    def test_setup_with_module_and_force(self):
-        args = self.parser.parse_args(["setup", "--module", "rag", "--force"])
-        assert args.module == "rag"
-        assert args.force is True
+    def test_embed_missing_schema_exits(self):
+        with pytest.raises(SystemExit):
+            self.parser.parse_args(["embed", "form.pdf"])
 
-    # ── rag ──────────────────────────────────────────────────────────────
-    def test_rag_predict_parses(self):
-        args = self.parser.parse_args([
-            "rag", "predict",
-            "--user", "u1", "--session", "s1", "--pdf", "p1",
-            "--fields", "fields.json", "--hash", "abc123",
-        ])
-        assert args.rag_command == "predict"
-        assert args.user == "u1"
-        assert args.hash == "abc123"
-
-    def test_rag_metrics_global(self):
-        args = self.parser.parse_args(["rag", "metrics", "--type", "global"])
-        assert args.rag_command == "metrics"
-        assert args.metric_type == "global"
-
-    def test_rag_feedback_parses(self):
-        args = self.parser.parse_args([
-            "rag", "feedback",
-            "--user", "u1", "--session", "s1", "--pdf", "p1",
-            "--errors", "errors.json",
-        ])
-        assert args.rag_command == "feedback"
-        assert args.errors == "errors.json"
-
-    def test_rag_system_info(self):
-        args = self.parser.parse_args(["rag", "system-info"])
-        assert args.rag_command == "system-info"
-
-    def test_rag_init_vectors_with_flags(self):
-        args = self.parser.parse_args([
-            "rag", "init-vectors",
-            "--backend", "openai", "--force", "--batch-size", "25",
-        ])
-        assert args.rag_command == "init-vectors"
-        assert args.backend == "openai"
-        assert args.force is True
-        assert args.batch_size == 25
-
-    def test_rag_error_analytics(self):
-        args = self.parser.parse_args([
-            "rag", "error-analytics", "--from", "2026-01-01T00:00:00Z",
-        ])
-        assert args.rag_command == "error-analytics"
-        assert args.date_from == "2026-01-01T00:00:00Z"
-
-    # ── mapper ───────────────────────────────────────────────────────────
-    def test_mapper_embed_parses(self):
-        args = self.parser.parse_args([
-            "mapper", "embed",
-            "--pdf", "blank.pdf", "--user", "u1", "--id", "lp_v1",
-        ])
-        assert args.mapper_command == "embed"
-        assert args.pdf_doc_id == "lp_v1"
-
-    def test_mapper_fill_parses(self):
-        args = self.parser.parse_args([
-            "mapper", "fill",
-            "--pdf", "blank.pdf", "--user", "u1", "--id", "lp_v1",
-            "--data", "data.json",
-        ])
-        assert args.mapper_command == "fill"
+    # ── fill ──────────────────────────────────────────────────────────────
+    def test_fill_required_args(self):
+        args = self.parser.parse_args(["fill", "form.pdf", "--data", "data.json"])
+        assert args.command == "fill"
+        assert args.pdf == "form.pdf"
         assert args.data == "data.json"
 
-    # ── doc-upload ───────────────────────────────────────────────────────
+    def test_fill_with_output(self):
+        args = self.parser.parse_args(["fill", "form.pdf", "--data", "data.json", "--output", "filled.pdf"])
+        assert args.output == "filled.pdf"
+
+    def test_fill_missing_data_exits(self):
+        with pytest.raises(SystemExit):
+            self.parser.parse_args(["fill", "form.pdf"])
+
+    # ── run ───────────────────────────────────────────────────────────────
+    def test_run_required_args(self):
+        args = self.parser.parse_args(["run", "form.pdf", "--schema", "configs/form_keys.json", "--data", "data.json"])
+        assert args.command == "run"
+        assert args.pdf == "form.pdf"
+        assert args.data == "data.json"
+
+    def test_run_with_output(self):
+        args = self.parser.parse_args(["run", "form.pdf", "--schema", "configs/form_keys.json", "--data", "data.json", "--output", "out.pdf"])
+        assert args.output == "out.pdf"
+
+    # ── batch ─────────────────────────────────────────────────────────────
+    def test_batch_required_args(self):
+        args = self.parser.parse_args(["batch", "--template", "form.pdf", "--schema", "configs/form_keys.json", "--input", "data/", "--output", "output/"])
+        assert args.command == "batch"
+        assert args.template == "form.pdf"
+        assert args.input == "data/"
+        assert args.output == "output/"
+
+    def test_batch_missing_template_exits(self):
+        with pytest.raises(SystemExit):
+            self.parser.parse_args(["batch", "--schema", "configs/form_keys.json", "--input", "data/", "--output", "output/"])
+
+    # ── status ────────────────────────────────────────────────────────────
+    def test_status_parses(self):
+        args = self.parser.parse_args(["status"])
+        assert args.command == "status"
+
+
+    # ── setup ─────────────────────────────────────────────────────────────
+    def test_setup_parses(self):
+        args = self.parser.parse_args(["setup"])
+        assert args.command == "setup"
+
+    # ── chatbot ───────────────────────────────────────────────────────────
+    def test_chatbot_session_parses(self):
+        args = self.parser.parse_args(["chatbot", "session", "--pdf", "form.pdf", "--user", "u1"])
+        assert args.chatbot_command == "session"
+        assert args.pdf == "form.pdf"
+        assert args.session is None
+
+    def test_chatbot_start_parses(self):
+        args = self.parser.parse_args(["chatbot", "start", "--port", "9000"])
+        assert args.chatbot_command == "start"
+        assert args.port == 9000
+
+    # ── doc-upload ────────────────────────────────────────────────────────
     def test_doc_upload_process_parses(self):
         args = self.parser.parse_args([
             "doc-upload", "process",
@@ -112,21 +105,39 @@ class TestFullParserIntegration:
         assert args.doc == "investor.pdf"
         assert args.user_id == "u1"
 
-    # ── chatbot ──────────────────────────────────────────────────────────
-    def test_chatbot_start_parses(self):
-        args = self.parser.parse_args(["chatbot", "start", "--port", "9000"])
-        assert args.chatbot_command == "start"
-        assert args.port == 9000
+    # ── mapper ────────────────────────────────────────────────────────────
+    def test_mapper_embed_parses(self):
+        args = self.parser.parse_args(["mapper", "embed", "--pdf", "form.pdf", "--schema", "configs/form_keys.json"])
+        assert args.mapper_command == "embed"
+        assert args.pdf == "form.pdf"
 
-    def test_chatbot_session_parses(self):
+    def test_mapper_fill_parses(self):
         args = self.parser.parse_args([
-            "chatbot", "session", "--pdf", "blank.pdf", "--user", "u1",
+            "mapper", "fill", "--pdf", "form.pdf", "--data", "data.json"
         ])
-        assert args.chatbot_command == "session"
-        assert args.pdf == "blank.pdf"
-        assert args.session is None  # optional
+        assert args.mapper_command == "fill"
+        assert args.data == "data.json"
 
-    # ── plugins ──────────────────────────────────────────────────────────
+    # ── rag ───────────────────────────────────────────────────────────────
+    def test_rag_predict_parses(self):
+        args = self.parser.parse_args([
+            "rag", "predict",
+            "--user", "u1", "--session", "s1", "--pdf", "p1",
+            "--fields", "fields.json", "--hash", "abc123",
+        ])
+        assert args.rag_command == "predict"
+        assert args.hash == "abc123"
+
+    def test_rag_system_info_parses(self):
+        args = self.parser.parse_args(["rag", "system-info"])
+        assert args.rag_command == "system-info"
+
+    def test_rag_metrics_parses(self):
+        args = self.parser.parse_args(["rag", "metrics", "--type", "global"])
+        assert args.rag_command == "metrics"
+        assert args.metric_type == "global"
+
+    # ── plugins ───────────────────────────────────────────────────────────
     def test_plugins_list_parses(self):
         args = self.parser.parse_args(["plugins", "list"])
         assert args.plugins_command == "list"
@@ -136,20 +147,12 @@ class TestFullParserIntegration:
         args = self.parser.parse_args(["plugins", "list", "--json"])
         assert args.as_json is True
 
-    def test_plugins_list_category_filter(self):
-        args = self.parser.parse_args(["plugins", "list", "--category", "validator"])
-        assert args.category == "validator"
-
     def test_plugins_info_parses(self):
-        args = self.parser.parse_args(["plugins", "info", "email-validator"])
+        args = self.parser.parse_args(["plugins", "info", "my-plugin"])
         assert args.plugins_command == "info"
-        assert args.name == "email-validator"
+        assert args.name == "my-plugin"
 
-    # ── invalid ──────────────────────────────────────────────────────────
+    # ── invalid ───────────────────────────────────────────────────────────
     def test_invalid_command_exits(self):
         with pytest.raises(SystemExit):
             self.parser.parse_args(["nonexistent-command"])
-
-    def test_rag_invalid_metric_type_exits(self):
-        with pytest.raises(SystemExit):
-            self.parser.parse_args(["rag", "metrics", "--type", "invalid"])

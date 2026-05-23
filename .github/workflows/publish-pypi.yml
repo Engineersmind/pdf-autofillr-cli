@@ -1,13 +1,13 @@
 name: Publish to PyPI
 
 # Tag format → Package:
-#   cli-v0.1.0  → pdf-autofillr-cli  (cli/)
+#   cli-v0.1.1  → pdf-autofillr-cli  (cli/)
 #
 # Release steps:
 #   1. Bump version in cli/pyproject.toml
 #   2. Update cli/CHANGELOG.md
 #   3. Merge to main
-#   4. git tag cli-v0.1.0 && git push origin cli-v0.1.0
+#   4. git tag cli-v0.1.1 && git push origin cli-v0.1.1
 #
 # Uses PyPI Trusted Publishing (OIDC) — no token needed.
 # Set up at https://pypi.org/manage/account/publishing/

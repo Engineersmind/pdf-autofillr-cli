@@ -1,99 +1,103 @@
 """
-pdf-autofillr setup
+pdf-autofillr-cli setup
 
-Runs first-time setup — creates .env, config files, and data directories.
-Delegates to each module's own setup routine.
+First-time setup:
+  1. Copies configs/ from mapper's bundled samples
+  2. Creates .env from .env.example (if not already present)
+  3. Shows USAGE.md path
+
+Example:
+    pdf-autofillr-cli setup
 """
 from __future__ import annotations
 
 import argparse
+import os
+import shutil
+from pathlib import Path
 
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
         "setup",
-        help="First-time setup: create .env, configs, and data directories",
-        description=(
-            "Run once after install. Creates:\n"
-            "  - .env with all environment variable defaults\n"
-            "  - configs/ directory with form_keys.json and mapper_config.ini\n"
-            "  - data/ directory skeleton\n"
-        ),
-    )
-    p.add_argument(
-        "--path",
-        default=".",
-        help="Directory to set up (default: current directory)",
-    )
-    p.add_argument(
-        "--force",
-        action="store_true",
-        help="Overwrite existing files",
-    )
-    p.add_argument(
-        "--module",
-        choices=["rag", "chatbot", "mapper", "doc-upload", "all"],
-        default="all",
-        help="Which module to set up (default: all)",
+        help="First-time setup: create configs/, .env, and show usage",
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.set_defaults(func=run)
 
 
 def run(args: argparse.Namespace) -> int:
-    import os
-    os.chdir(args.path) if args.path != "." else None
+    print("\n  pdf-autofillr-cli setup")
+    print("  " + "-" * 50)
 
-    modules = (
-        ["rag", "chatbot", "mapper", "doc-upload"]
-        if args.module == "all"
-        else [args.module]
-    )
+    # Step 0: copy mapper configs
+    try:
+        from pdf_autofillr_mapper import copy_sample_configs  # type: ignore
+        if not Path("configs").exists():
+            copy_sample_configs(".")
+            print("\n  OK  Created configs/ directory")
+        else:
+            print("\n  OK  configs/ already exists -- skipping")
+    except ImportError:
+        print("\n  WARN  pdf-autofillr-mapper not installed -- skipping configs setup")
+        print('        Install with:  pip install "pdf-autofillr[mapper]"')
 
-    ran_any = False
+    # Step 1: create .env
+    env_file = Path(".env")
+    env_example = _find_env_example()
 
-    if "rag" in modules:
-        try:
-            from ragpdf.entrypoints.setup import main as rag_setup
-            print("\n── RAG setup ──────────────────────────────────────")
-            rag_setup()
-            ran_any = True
-        except ImportError:
-            print("  rag module not installed, skipping.")
-
-    if "chatbot" in modules:
-        try:
-            from chatbot.entrypoints.cli import setup as chatbot_setup
-            print("\n── Chatbot setup ───────────────────────────────────")
-            chatbot_setup(force=args.force)
-            ran_any = True
-        except (ImportError, AttributeError):
-            # chatbot has no standalone setup — just note it
-            print("  chatbot: no standalone setup needed (configure via .env)")
-
-    if "mapper" in modules:
-        try:
-            from pdf_autofillr_mapper.entrypoints.cli import setup as mapper_setup
-            print("\n── Mapper setup ────────────────────────────────────")
-            mapper_setup(force=args.force)
-            ran_any = True
-        except (ImportError, AttributeError):
-            print("  mapper: no standalone setup needed (configure via .env)")
-
-    if "doc-upload" in modules:
-        try:
-            from pdf_autofillr_doc_upload.entrypoints.cli import setup as doc_setup
-            print("\n── Doc Upload setup ────────────────────────────────")
-            doc_setup(force=args.force)
-            ran_any = True
-        except (ImportError, AttributeError):
-            print("  doc-upload: no standalone setup needed (configure via .env)")
-
-    if not ran_any:
-        print(
-            "\n  No modules are installed.\n"
-            "  Install everything:  pip install pdf-autofillr[all]\n"
+    if env_file.exists():
+        print("\n  OK  .env already exists -- skipping")
+    elif env_example:
+        shutil.copy(env_example, env_file)
+        print(f"\n  OK  Created .env from {env_example}")
+        print("  --> Open .env and add your API key (OPENAI_API_KEY or ANTHROPIC_API_KEY)")
+    else:
+        env_file.write_text(
+            "# Add your LLM API key\n"
+            "OPENAI_API_KEY=your_key_here\n"
+            "\n"
+            "# Noise suppression\n"
+            "LITELLM_LOG=ERROR\n"
+            "MAPPER_LOG_LEVEL=ERROR\n"
+            "RAGPDF_LOG_LEVEL=WARNING\n"
         )
-        return 1
+        print("\n  OK  Created minimal .env")
+        print("  --> Open .env and add your API key")
 
-    print("\n✅  Setup complete. Edit .env then run: pdf-autofillr status\n")
+    # Step 2: show USAGE.md
+    usage_file = _find_usage()
+    if usage_file:
+        print(f"\n  Usage guide: {usage_file}")
+        print("  Run: cat " + str(usage_file))
+    else:
+        print("\n  Quick start:")
+        print("    pdf-autofillr-cli embed form.pdf --schema configs/form_keys.json")
+        print("    pdf-autofillr-cli fill form.pdf --data data.json")
+        print("    pdf-autofillr-cli run form.pdf --schema configs/form_keys.json --data data.json")
+
+    print("\n  Run 'pdf-autofillr-cli status' to verify everything is ready.\n")
     return 0
+
+
+def _find_env_example() -> Path | None:
+    candidates = [
+        Path(".env.example"),
+        Path(__file__).parent.parent.parent / ".env.example",
+    ]
+    for c in candidates:
+        if c.exists():
+            return c
+    return None
+
+
+def _find_usage() -> Path | None:
+    candidates = [
+        Path("USAGE.md"),
+        Path(__file__).parent.parent.parent / "USAGE.md",
+    ]
+    for c in candidates:
+        if c.exists():
+            return c
+    return None

@@ -1,5 +1,5 @@
 """
-pdf-autofillr plugins <command>
+pdf-autofillr-cli plugins <command>
 
 Inspect, list, and validate installed plugins.
 """
@@ -39,7 +39,7 @@ def run(args: argparse.Namespace) -> int:
     require_module("pdf_autofillr_plugins", "pip install pdf-autofillr-plugins")
 
     if not args.plugins_command:
-        print("Usage: pdf-autofillr plugins <command>")
+        print("Usage: pdf-autofillr-cli plugins <command>")
         print("Commands: list, info")
         return 1
 
@@ -103,7 +103,7 @@ def _info(args: argparse.Namespace) -> int:
 
     if not info:
         print(f"\n  Plugin '{args.name}' not found.")
-        print("  Try: pdf-autofillr plugins list\n")
+        print("  Try: pdf-autofillr-cli plugins list\n")
         return 1
 
     print(json.dumps(info, indent=2))
