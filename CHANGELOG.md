@@ -12,7 +12,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 | Package | Latest | Changelog |
 |---------|--------|-----------|
-| pdf-autofillr-cli | 0.2.0 | [cli/CHANGELOG.md](cli/CHANGELOG.md) |
+| pdf-autofillr-cli | 0.2.1 | [cli/CHANGELOG.md](cli/CHANGELOG.md) |
 
 ---
 
@@ -24,6 +24,21 @@ Versioning: [Semantic Versioning](https://semver.org/)
 - `pdf-autofillr-cli doctor` — extended diagnostics with fix suggestions
 - Shell completion for bash, zsh, and fish
 - `--output json` flag on all commands for scripting
+
+---
+
+## [cli-0.2.1] — 2026-05-23
+
+### Added
+
+- `usage/` folder bundled inside the package — one guide per command (embed, fill, run, batch, chatbot, doc-upload, mapper, rag, plugins)
+- Each guide shows required files, folder structure, minimum `.env`, and exact command with expected output
+- `setup` now shows path to `usage/` guides after installation
+- `USAGE.md` bundled inside the package so it's always available after `pip install`
+
+### Fixed
+
+- `setup` now correctly finds `USAGE.md` and `usage/` from installed package location
 
 ---
 

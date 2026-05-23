@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pdf-autofillr-cli"
-version = "0.2.0"
+version = "0.2.1"
 description = "Unified CLI for all pdf-autofillr modules"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -49,6 +49,9 @@ Platform      = "https://pdffillr.ai"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+pdf_autofillr_cli = ["USAGE.md", "usage/*.md"]
 
 [tool.black]
 line-length = 100

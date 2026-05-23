@@ -66,11 +66,12 @@ def run(args: argparse.Namespace) -> int:
         print("\n  OK  Created minimal .env")
         print("  --> Open .env and add your API key")
 
-    # Step 2: show USAGE.md
-    usage_file = _find_usage()
-    if usage_file:
-        print(f"\n  Usage guide: {usage_file}")
-        print("  Run: cat " + str(usage_file))
+    # Step 2: show usage guides
+    usage_dir = _find_usage_dir()
+    if usage_dir:
+        print(f"\n  Usage guides: {usage_dir}")
+        print("  One file per command — embed, fill, run, batch, chatbot, doc-upload, rag, mapper, plugins")
+        print(f"  Example: open {usage_dir / 'run.md'}")
     else:
         print("\n  Quick start:")
         print("    pdf-autofillr-cli embed form.pdf --schema configs/form_keys.json")
@@ -95,9 +96,21 @@ def _find_env_example() -> Path | None:
 def _find_usage() -> Path | None:
     candidates = [
         Path("USAGE.md"),
+        Path(__file__).parent / "USAGE.md",
         Path(__file__).parent.parent.parent / "USAGE.md",
     ]
     for c in candidates:
         if c.exists():
+            return c
+    return None
+
+
+def _find_usage_dir() -> Path | None:
+    candidates = [
+        Path(__file__).parent / "usage",   # bundled in package
+        Path(__file__).parent.parent.parent / "usage",  # dev install
+    ]
+    for c in candidates:
+        if c.exists() and c.is_dir():
             return c
     return None
