@@ -14,6 +14,8 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 - Remove unused imports flagged by CodeQL (`os`, `json`, `Optional`, `patch`, `MagicMock`, `sys`)
+- Remove `pass` from non-empty `except` block in `cmd_rag.py`
+- Remove unused `patch` import from `test_utils.py`
 
 ## [0.1.0] - 2026-04-30
 

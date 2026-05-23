@@ -109,7 +109,7 @@ def _init_vectors(args: argparse.Namespace) -> int:
         load_dotenv()
     except ImportError:
         # Optional dependency: continue if python-dotenv is not installed.
-        pass
+        # pass
         print("INFO: python-dotenv not installed; skipping .env loading.", file=sys.stderr)
 
     from ragpdf.init_vectors import run_init_vectors
