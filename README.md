@@ -1,63 +1,94 @@
-# pdf-autofillr-cli
-
-> Unified command-line interface for all pdf-autofillr modules.
-
-[![PyPI](https://img.shields.io/pypi/v/pdf-autofillr-cli)](https://pypi.org/project/pdf-autofillr-cli/)
-[![Python](https://img.shields.io/pypi/pyversions/pdf-autofillr-cli)](https://pypi.org/project/pdf-autofillr-cli/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Tests](https://github.com/Engineersmind/pdf-autofillr-cli/actions/workflows/tests.yml/badge.svg)](https://github.com/Engineersmind/pdf-autofillr-cli/actions/workflows/tests.yml)
 [![Platform](https://img.shields.io/badge/platform-pdffillr.ai-blue)](https://pdffillr.ai)
 
-One install. One command. All modules.
+<div align="center">
+
+# pdf-autofillr CLI
+
+**Fill PDF forms from your terminal using any LLM — batch processing, scriptable, CI-friendly.**
+
+[**Quick Start**](#quick-start) · [**Python SDK**](https://github.com/EngineersMind/pdf-autofillr-python-sdk) · [**Node.js SDK**](https://github.com/EngineersMind/pdf-autofillr-node-sdk) · [**Live Platform**](https://pdffillr.ai)
+
+</div>
+
+---
+
+> **Status:** Under active development. For production use today, see the [Python SDK](https://github.com/EngineersMind/pdf-autofillr-python-sdk) or the [live platform at pdffillr.ai](https://pdffillr.ai).
+>
+> **Note:** The CLI is published as standalone packages. This repository tracks design, issues, and roadmap. See installation instructions below for the published packages.
+
+## What it does
+
+`pdf-autofillr-cli` lets you fill PDF forms from the command line — embed field metadata into a template once, then fill it with JSON data on every run. Works with OpenAI, Anthropic, Google, and local Ollama models.
+
+## Installation
+
+**Python (recommended):**
 
 ```bash
-pip install "pdf-autofillr-cli[all]"
-pdf-autofillr status
+pip install pdf-autofillr-cli
 ```
 
----
-
-## What is this?
-
-`pdf-autofillr-cli` wraps the five pdf-autofillr packages — **chatbot**, **mapper**, **rag**, **doc-upload**, and **plugins** — under a single `pdf-autofillr` terminal command.
-
-```
-pdf-autofillr status
-pdf-autofillr setup
-pdf-autofillr rag predict --user u1 --session s1 --pdf p1 --fields fields.json --hash abc123
-pdf-autofillr chatbot start
-pdf-autofillr mapper embed --pdf blank.pdf --user u1 --id lp_v1
-pdf-autofillr doc-upload process --doc investor.pdf --pdf blank.pdf --schema form_keys.json --user u1 --id lp_v1
-pdf-autofillr plugins list
-```
-
----
-
-## Install
+**npm:**
 
 ```bash
-pip install pdf-autofillr-cli                   # CLI only
-pip install "pdf-autofillr-cli[rag]"            # + RAG module
-pip install "pdf-autofillr-cli[chatbot]"        # + chatbot module
-pip install "pdf-autofillr-cli[mapper]"         # + mapper module
-pip install "pdf-autofillr-cli[doc-upload]"     # + doc-upload module
-pip install "pdf-autofillr-cli[all]"            # + all modules
+npm install -g @engineersmind/pdf-autofillr-cli
 ```
-
----
 
 ## Quick Start
 
 ```bash
-pdf-autofillr setup          # creates .env, configs/, data/
-pdf-autofillr status         # verify everything is configured
-pdf-autofillr --help         # see all commands
+# Step 1: Embed metadata into a PDF template (run once per template)
+pdf-autofillr embed form.pdf --keys first_name last_name dob --output form.embedded.pdf
+
+# Step 2: Fill a template with JSON data
+pdf-autofillr fill form.embedded.pdf --data data.json --output filled.pdf
+
+# Step 3: Run the full pipeline in one shot
+pdf-autofillr run form.pdf --data data.json --output filled.pdf
 ```
 
-→ See [cli/quickstart.md](cli/quickstart.md) for a 3-step walkthrough.
-→ See [cli/USAGE.md](cli/USAGE.md) for full command reference.
+## Batch Processing
 
----
+```bash
+# Fill multiple PDFs from a directory of JSON files
+pdf-autofillr batch --template form.embedded.pdf --input data/ --output output/
+
+# Use a specific LLM model
+pdf-autofillr embed form.pdf --keys name email --model claude-3-5-haiku-latest
+```
+
+## Supported LLMs
+
+| Provider | Model examples |
+|----------|---------------|
+| OpenAI | `gpt-4o`, `gpt-4o-mini` |
+| Anthropic | `claude-3-5-haiku-latest`, `claude-3-5-sonnet-latest` |
+| Google | `gemini-1.5-flash`, `gemini-1.5-pro` |
+| Ollama (local) | `llama3.1`, `mistral`, `phi3` |
+
+## Configuration
+
+```bash
+# Set API key via environment variable
+export PDF_AUTOFILLR_API_KEY=your_key_here
+export OPENAI_API_KEY=your_key_here  # or ANTHROPIC_API_KEY, etc.
+
+# Or persist via config command
+pdf-autofillr config --api-key your_key
+```
+
+## All Commands
+
+| Command | Description |
+|---------|-------------|
+| `embed` | Extract and embed field metadata into a PDF template |
+| `fill` | Fill an embedded PDF template with JSON data |
+| `run` | Full pipeline: embed + fill in one command |
+| `batch` | Fill multiple PDFs from a data directory |
+| `status` | Check configuration and connectivity |
+| `config` | Set API keys and default options |
 
 ## Repository Layout
 
@@ -67,11 +98,8 @@ pdf-autofillr-cli/
 ├── benchmarks/           ← CLI benchmarking suite
 ├── deployment/           ← Docker configs
 ├── docs/                 ← architecture and guides
-├── examples/             ← usage examples
-└── .github/workflows/    ← CI: tests + PyPI publish
+└── examples/             ← usage examples
 ```
-
----
 
 ## Development
 
@@ -84,20 +112,18 @@ pytest tests/ -v              # 69 tests
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full contributor guide.
 
----
-
-## Related Packages
+## Related
 
 | Package | Description |
 |---------|-------------|
-| [`pdf-autofillr`](https://pypi.org/project/pdf-autofillr/) | Umbrella package |
-| [`pdf-autofillr-rag`](https://pypi.org/project/pdf-autofillr-rag/) | RAG prediction engine |
-| [`pdf-autofillr-chatbot`](https://pypi.org/project/pdf-autofillr-chatbot/) | Conversational onboarding |
-| [`pdf-autofillr-mapper`](https://pypi.org/project/pdf-autofillr-mapper/) | Semantic PDF field mapper |
-| [`pdf-autofillr-doc-upload`](https://pypi.org/project/pdf-autofillr-doc-upload/) | Document extraction |
-| [`pdf-autofillr-plugins`](https://pypi.org/project/pdf-autofillr-plugins/) | Plugin framework |
+| [pdf-autofillr-python-sdk](https://github.com/EngineersMind/pdf-autofillr-python-sdk) | Python library for programmatic use |
+| [pdf-autofillr-node-sdk](https://github.com/EngineersMind/pdf-autofillr-node-sdk) | Node.js/TypeScript SDK |
+| [pdf-autofillr-plugins](https://github.com/EngineersMind/pdf-autofillr-plugins) | Custom extractors and LLM adapters |
 
----
+## Contributing
+
+Open an [issue](https://github.com/Engineersmind/pdf-autofillr-cli/issues) to report a bug or suggest a feature.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
 ## License
 
