@@ -12,7 +12,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 | Package | Latest | Changelog |
 |---------|--------|-----------|
-| pdf-autofillr-cli | 0.1.1 | [cli/CHANGELOG.md](cli/CHANGELOG.md) |
+| pdf-autofillr-cli | 0.2.0 | [cli/CHANGELOG.md](cli/CHANGELOG.md) |
 
 ---
 
@@ -20,10 +20,43 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ### Planned
 
-- `pdf-autofillr logs` — tail logs across all running module servers
-- `pdf-autofillr doctor` — extended diagnostics with fix suggestions
+- `pdf-autofillr-cli logs` — tail logs across all running module servers
+- `pdf-autofillr-cli doctor` — extended diagnostics with fix suggestions
 - Shell completion for bash, zsh, and fish
 - `--output json` flag on all commands for scripting
+
+---
+
+## [cli-0.2.0] — 2026-05-23
+
+### Added
+
+- `embed` — top-level command to embed field metadata into a PDF template
+- `fill` — top-level command to fill an embedded PDF with JSON data
+- `run` — full pipeline: embed + fill in one shot
+- `batch` — fill multiple PDFs from a directory of JSON files
+- Simplified `status` — checks modules installed + env vars set + `.env` present
+- Simplified `setup` — copies `configs/` from SDK samples + creates `.env`
+
+### Changed
+
+- Entry point renamed from `pdf-autofillr` to `pdf-autofillr-cli` to avoid conflict with SDK
+- `pdf-autofillr[all]` is now the single hard dependency — installs everything
+- All commands now use `PDFPipeline` + `MapperConfig` (correct SDK API)
+- `chatbot` uses `chatbotClient(storage, form_config)` + `send_message()` (correct SDK API)
+- `doc-upload` uses `DocUploadClient()` + `.run()` (correct SDK API)
+- Removed `requirements/` individual module extras — single dep handles all
+- Updated author to Engineers Mind / Support@pdffillr.ai
+- Fixed `pyproject.toml` license format (SPDX), updated URLs to correct repo
+
+### Fixed
+
+- `chatbot.storage.local` → `chatbot.storage.local_storage` (correct module path)
+- `MapperOrchestrator` → `PDFPipeline` + `MapperConfig` (MapperOrchestrator doesn't exist)
+- `chatbotClient.from_env()` → `chatbotClient(storage, form_config)` (no from_env)
+- `DocUploadClient.from_env()` → `DocUploadClient()` (reads env automatically)
+- `client.process()` → `client.run()` (correct method name)
+- Removed unused imports flagged by CodeQL
 
 ---
 
