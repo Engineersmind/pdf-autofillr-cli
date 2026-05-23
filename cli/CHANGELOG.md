@@ -6,6 +6,14 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.2] - 2026-05-23
+
+### Fixed
+- `setup` now copies `usage/` guides into working directory (alongside `configs/` and `.env`)
+- Previously only showed the path inside the package — now extracts to your project folder
+
+---
+
 ## [0.2.1] - 2026-05-23
 
 ### Added
