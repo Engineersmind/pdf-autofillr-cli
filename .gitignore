@@ -1,9 +1,48 @@
-# =============================================================================
-# pdf-autofillr-cli — .gitignore
-# =============================================================================
+# ======================
+# Python cache / build
+# ======================
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.Python
+**/*.so
+**/*.egg
+**/*.egg-info/
+build/
+dist/
+**/build/
+**/dist/
+.eggs/
+wheels/
+*.whl
+MANIFEST
+.installed.cfg
 
-# ── Secrets & environment ─────────────────────────────────────────────────────
+# ======================
+# Testing / coverage
+# ======================
+**/.pytest_cache/
+**/.mypy_cache/
+**/.coverage
+htmlcov/
+coverage.xml
+*.xml
+.tox/
+
+# ======================
+# Virtual environments
+# ======================
+venv/
+env/
+.venv/
+ENV/
+
+# ======================
+# Secrets — never commit .env
+# ======================
 .env
+**/.env
 .env.local
 .env.*.local
 *.pem
@@ -11,52 +50,51 @@
 *.p12
 *.pfx
 
-# ── Python build artefacts ────────────────────────────────────────────────────
-__pycache__/
-*.py[cod]
-*.pyo
-*.pyd
-.Python
-*.egg
-*.egg-info/
-dist/
-build/
-.eggs/
-wheels/
-*.whl
-MANIFEST
-.installed.cfg
-
-# ── Virtual environments ──────────────────────────────────────────────────────
-.venv/
-venv/
-env/
-ENV/
-
-# ── Package distribution ──────────────────────────────────────────────────────
-/dist/
-*.tar.gz
-
-# ── Test output ───────────────────────────────────────────────────────────────
-.pytest_cache/
-.coverage
-htmlcov/
-coverage.xml
-*.xml
-.tox/
-
-# ── OS & editor ───────────────────────────────────────────────────────────────
-.DS_Store
-Thumbs.db
-.idea/
+# ======================
+# IDE / Editor
+# ======================
 .vscode/
+.idea/
 *.swp
 *~
 
-# ── Logs ──────────────────────────────────────────────────────────────────────
+# ======================
+# OS
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# Archives / ZIPs
+# ======================
+*.zip
+archives/
+*.tar.gz
+
+# ======================
+# Logs
+# ======================
 *.log
 logs/
 
-# ── Benchmark results ─────────────────────────────────────────────────────────
+# ======================
+# Benchmark results — generated output, not fixtures
+# ======================
 benchmarks/results/*
 !benchmarks/results/.gitkeep
+
+# ======================
+# Misc
+# ======================
+*.tmp
+*.bak
+rough_docs/
+CLAUDE.md
+z_useful_cmds.sh
+TODO.md
+pat.txt
+
+# ======================
+# Claude Code workspace — never commit
+# ======================
+.claude/

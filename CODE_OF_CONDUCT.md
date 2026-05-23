@@ -34,15 +34,15 @@ This Code of Conduct applies within all community spaces, and also applies when 
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at **Support@pdffillr.ai**. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at **Support@pdffillr.ai**. All complaints will be reviewed and investigated promptly and fairly. All community leaders are obligated to respect the privacy and security of the reporter of any incident.
 
 ## Enforcement Guidelines
 
-**1. Correction** — Private written warning and explanation of why the behavior was inappropriate.
+**1. Correction** — Private written warning, clarity around the nature of the violation, and an explanation of why the behavior was inappropriate.
 
-**2. Warning** — A warning with consequences for continued behavior.
+**2. Warning** — A warning with consequences for continued behavior. No interaction with the people involved for a specified period of time.
 
-**3. Temporary Ban** — A temporary ban from any sort of interaction with the community.
+**3. Temporary Ban** — A temporary ban from any sort of interaction or public communication with the community for a specified period of time.
 
 **4. Permanent Ban** — A permanent ban from any sort of public interaction within the community.
 
