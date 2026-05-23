@@ -1,20 +1,44 @@
-## Summary
+> **Dependabot PR?** Skip the checklist — verify CI is green, review the diff, then merge.
 
-<!-- What does this PR do? -->
+---
 
-## Type of change
+## Description
+<!-- What does this PR do? Be specific. -->
 
-- [ ] Bug fix
-- [ ] New command or flag
-- [ ] Documentation update
-- [ ] Refactor (no behaviour change)
-- [ ] CI / tooling
+## Why
+<!-- Why is this change needed? Link to an issue if applicable. -->
+Closes #
+
+## Changes Made
+<!-- List the key changes -->
+-
+-
+
+## Testing
+<!-- How did you test this? What commands did you run? -->
+```bash
+
+```
+
+## Screenshots (if applicable)
+
+---
 
 ## Checklist
 
+**Branch & commits**
+- [ ] Branch named correctly — `<type>/<module>-<short-description>` (e.g. `fix/cli-status-crash`)
+- [ ] All commit messages follow `<type>/<module>: description` (e.g. `fix/cli: handle missing module gracefully`)
+- [ ] PR title follows the same format
+- [ ] No direct commits to `main`
+
+**Code**
 - [ ] `pip install -e ".[dev]"` succeeds
-- [ ] `pytest tests/` passes (all 69 tests)
-- [ ] New commands have unit AND integration tests
-- [ ] `USAGE.md` updated if flags/commands changed
-- [ ] `CHANGELOG.md` entry added
-- [ ] `.env.example` updated if new env vars referenced
+- [ ] `pytest tests/` passes locally
+- [ ] New behaviour has test coverage
+- [ ] No build artifacts, `.env`, `__pycache__`, or `.egg-info` included
+
+**Docs**
+- [ ] `.env.example` updated if new env vars added
+- [ ] `cli/CHANGELOG.md` entry added
+- [ ] Root `README.md` updated if commands or flags changed

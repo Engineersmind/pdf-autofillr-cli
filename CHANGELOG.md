@@ -1,18 +1,36 @@
 # Changelog
 
 All notable changes to the **pdf-autofillr-cli** repository are documented here.
-Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
-Versioning follows [Semantic Versioning](https://semver.org/).
+Each release also has an entry in `cli/CHANGELOG.md`.
+
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+Versioning: [Semantic Versioning](https://semver.org/)
+
+---
+
+## Packages
+
+| Package | Latest | Changelog |
+|---------|--------|-----------|
+| pdf-autofillr-cli | 0.1.0 | [cli/CHANGELOG.md](cli/CHANGELOG.md) |
 
 ---
 
 ## [Unreleased]
 
+### Planned
+
+- `pdf-autofillr logs` — tail logs across all running module servers
+- `pdf-autofillr doctor` — extended diagnostics with fix suggestions
+- Shell completion for bash, zsh, and fish
+- `--output json` flag on all commands for scripting
+
 ---
 
-## [0.1.0] - 2026-04-30
+## [cli-0.1.0] — 2026-04-30
 
 ### Added
+
 - Initial release — `pdf-autofillr` unified CLI for all pdf-autofillr modules
 - `status` command — checks installed modules, config files, env vars, connections
 - `setup` command — first-time project setup for any or all modules
