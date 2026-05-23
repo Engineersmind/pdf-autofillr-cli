@@ -6,16 +6,14 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.1.0] - 2026-04-30
-
-### Added
-- Initial release of the unified CLI for all pdf-autofillr modules
-...
+## [0.1.1] - 2026-05-23
 
 ### Fixed
 - Remove unused imports flagged by CodeQL (`os`, `json`, `Optional`, `patch`, `MagicMock`, `sys`)
 - Remove `pass` from non-empty `except` block in `cmd_rag.py`
 - Remove unused `patch` import from `test_utils.py`
+
+---
 
 ## [0.1.0] - 2026-04-30
 
@@ -35,7 +33,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## Unreleased
+## [Unreleased]
 
 ### Planned
 - `pdf-autofillr logs` — tail logs across all running module servers
