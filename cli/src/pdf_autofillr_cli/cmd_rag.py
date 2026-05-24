@@ -10,7 +10,7 @@ import argparse
 import json
 import os
 import sys
-from typing import Optional
+# from typing import Optional
 
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
@@ -108,7 +108,9 @@ def _init_vectors(args: argparse.Namespace) -> int:
         from dotenv import load_dotenv
         load_dotenv()
     except ImportError:
-        pass
+        # Optional dependency: continue if python-dotenv is not installed.
+        # pass
+        print("INFO: python-dotenv not installed; skipping .env loading.", file=sys.stderr)
 
     from ragpdf.init_vectors import run_init_vectors
     from ragpdf.config.settings import (

@@ -1,7 +1,7 @@
 """Shared fixtures for CLI tests."""
 import pytest
-from unittest.mock import MagicMock, patch
-
+# from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 @pytest.fixture
 def mock_rag_client():

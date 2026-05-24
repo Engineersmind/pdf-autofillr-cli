@@ -81,10 +81,10 @@ Output example:
 
 Modules
 ────────────────────────────────────────────────────────────────
-  ✅  chatbot        v0.2.9
-  ✅  rag            v0.2.3
-  ✅  mapper         v1.0.8
-  ✅  doc_upload     v0.1.4
+  ✅  chatbot        v0.3.0
+  ✅  rag            v0.2.4
+  ✅  mapper         v1.0.10
+  ✅  doc_upload     v0.1.5
   ✅  plugins        v0.1.0
 
 Files

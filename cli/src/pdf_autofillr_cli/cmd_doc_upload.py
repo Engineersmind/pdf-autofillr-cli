@@ -6,7 +6,7 @@ Extract data from uploaded documents (PDF, DOCX, XLSX, CSV …) and fill a PDF f
 from __future__ import annotations
 
 import argparse
-import json
+# import json
 
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:

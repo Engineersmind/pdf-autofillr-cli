@@ -1,7 +1,7 @@
 """Unit tests for pdf_autofillr_cli.utils."""
-import sys
+# import sys
 import pytest
-from unittest.mock import patch
+# from unittest.mock import patch
 
 from pdf_autofillr_cli.utils import (
     chatbot_available,
