@@ -94,6 +94,7 @@ z_useful_cmds.sh
 TODO.md
 pat.txt
 cli/pypi.txt
+pat_cli.txt
 
 # ======================
 # Claude Code workspace — never commit
