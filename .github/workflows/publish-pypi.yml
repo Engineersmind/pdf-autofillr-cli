@@ -1,0 +1,77 @@
+name: Publish to PyPI
+
+# Tag format → Package:
+#   cli-v0.1.0  → pdf-autofillr-cli  (cli/)
+#
+# Release steps:
+#   1. Bump version in cli/pyproject.toml
+#   2. Update cli/CHANGELOG.md
+#   3. Merge to main
+#   4. git tag cli-v0.1.0 && git push origin cli-v0.1.0
+#
+# Uses PyPI Trusted Publishing (OIDC) — no token needed.
+# Set up at https://pypi.org/manage/account/publishing/
+
+on:
+  push:
+    tags:
+      - 'cli-v*'
+
+jobs:
+  test:
+    name: Test / Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    defaults:
+      run:
+        working-directory: cli
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: pytest tests/ --tb=short -q
+
+  build:
+    name: Build pdf-autofillr-cli
+    runs-on: ubuntu-latest
+    needs: test
+    defaults:
+      run:
+        working-directory: cli
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify version matches tag
+        run: |
+          PKG=$(python -c "import tomllib,pathlib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version'])")
+          TAG="${GITHUB_REF_NAME#cli-v}"
+          echo "Tag=$TAG pyproject=$PKG"
+          [ "$TAG" = "$PKG" ] || (echo "Version mismatch — bump pyproject.toml before tagging" && exit 1)
+      - run: pip install build && python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-pdf-autofillr-cli
+          path: cli/dist/
+
+  publish:
+    name: Publish pdf-autofillr-cli
+    runs-on: ubuntu-latest
+    needs: build
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-pdf-autofillr-cli
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/

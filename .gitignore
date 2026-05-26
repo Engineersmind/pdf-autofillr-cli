@@ -1,0 +1,101 @@
+# ======================
+# Python cache / build
+# ======================
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.Python
+**/*.so
+**/*.egg
+**/*.egg-info/
+build/
+dist/
+**/build/
+**/dist/
+.eggs/
+wheels/
+*.whl
+MANIFEST
+.installed.cfg
+
+# ======================
+# Testing / coverage
+# ======================
+**/.pytest_cache/
+**/.mypy_cache/
+**/.coverage
+htmlcov/
+coverage.xml
+*.xml
+.tox/
+
+# ======================
+# Virtual environments
+# ======================
+venv/
+env/
+.venv/
+ENV/
+
+# ======================
+# Secrets — never commit .env
+# ======================
+.env
+**/.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.p12
+*.pfx
+
+# ======================
+# IDE / Editor
+# ======================
+.vscode/
+.idea/
+*.swp
+*~
+
+# ======================
+# OS
+# ======================
+.DS_Store
+Thumbs.db
+
+# ======================
+# Archives / ZIPs
+# ======================
+*.zip
+archives/
+*.tar.gz
+
+# ======================
+# Logs
+# ======================
+*.log
+logs/
+
+# ======================
+# Benchmark results — generated output, not fixtures
+# ======================
+benchmarks/results/*
+!benchmarks/results/.gitkeep
+
+# ======================
+# Misc
+# ======================
+*.tmp
+*.bak
+rough_docs/
+CLAUDE.md
+z_useful_cmds.sh
+TODO.md
+pat.txt
+cli/pypi.txt
+
+# ======================
+# Claude Code workspace — never commit
+# ======================
+.claude/

@@ -1,0 +1,3 @@
+# pdf-autofillr-cli — base requirements
+# Installed automatically with: pip install pdf-autofillr-cli
+pdf-autofillr>=1.1.0

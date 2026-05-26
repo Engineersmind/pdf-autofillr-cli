@@ -1,4 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Tests](https://github.com/Engineersmind/pdf-autofillr-cli/actions/workflows/tests.yml/badge.svg)](https://github.com/Engineersmind/pdf-autofillr-cli/actions/workflows/tests.yml)
 [![Platform](https://img.shields.io/badge/platform-pdffillr.ai-blue)](https://pdffillr.ai)
 
 <div align="center">
@@ -89,6 +90,28 @@ pdf-autofillr config --api-key your_key
 | `status` | Check configuration and connectivity |
 | `config` | Set API keys and default options |
 
+## Repository Layout
+
+```
+pdf-autofillr-cli/
+├── cli/                  ← the PyPI package (pdf-autofillr-cli)
+├── benchmarks/           ← CLI benchmarking suite
+├── deployment/           ← Docker configs
+├── docs/                 ← architecture and guides
+└── examples/             ← usage examples
+```
+
+## Development
+
+```bash
+git clone https://github.com/Engineersmind/pdf-autofillr-cli.git
+cd pdf-autofillr-cli/cli
+pip install -e ".[dev]"
+pytest tests/ -v              # 69 tests
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full contributor guide.
+
 ## Related
 
 | Package | Description |
@@ -99,8 +122,9 @@ pdf-autofillr config --api-key your_key
 
 ## Contributing
 
-Open an [issue](https://github.com/EngineersMind/pdf-autofillr-cli/issues) to report a bug or suggest a feature.
+Open an [issue](https://github.com/Engineersmind/pdf-autofillr-cli/issues) to report a bug or suggest a feature.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
+MIT — see [LICENSE](LICENSE).
