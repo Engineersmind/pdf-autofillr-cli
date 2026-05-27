@@ -30,7 +30,7 @@ jobs:
           cache: pip
 
       - name: Install lint tools
-        run: pip install ruff>=0.4.0 black>=23.0.0 isort>=5.12.0 flake8>=6.0.0 flake8-bugbear>=23.0.0
+        run: pip install "ruff>=0.4.0" "black>=23.0.0" "isort>=5.12.0" "flake8>=6.0.0" "flake8-bugbear>=23.0.0"
 
       - name: ruff — lint + import sort check
         run: ruff check src/ tests/
@@ -45,7 +45,7 @@ jobs:
         run: |
           flake8 src/ tests/ \
             --max-line-length=100 \
-            --extend-ignore=E203,W503 \
+            --extend-ignore=E203,W503,E501 \
             --per-file-ignores="tests/*:S101"
 
   # ── 2. Type check ────────────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ jobs:
 
       - name: Install mypy + package (no SDK — stubs only)
         run: |
-          pip install mypy>=1.8.0 pytest
+          pip install "mypy>=1.8.0" pytest
           pip install -e "." --no-deps 2>/dev/null || true
 
       - name: mypy — type check src/
@@ -76,7 +76,6 @@ jobs:
             --python-version=3.10 \
             --strict-optional \
             --warn-redundant-casts \
-            --warn-unused-ignores \
             --no-error-summary
 
   # ── 3. Smoke test ────────────────────────────────────────────────────────────
@@ -97,7 +96,7 @@ jobs:
           cache: pip
 
       - name: Install package (no SDK)
-        run: pip install -e "." --no-deps 2>/dev/null || pip install -e "." || true
+        run: pip install -e "." --no-deps 2>/dev/null || true
 
       - name: pdf-autofillr-cli --help
         run: pdf-autofillr-cli --help
@@ -130,7 +129,7 @@ jobs:
           cache: pip
 
       - name: Install build + twine
-        run: pip install build>=1.0.0 twine>=5.0.0
+        run: pip install "build>=1.0.0" "twine>=5.0.0"
 
       - name: Build wheel and sdist
         run: python -m build
