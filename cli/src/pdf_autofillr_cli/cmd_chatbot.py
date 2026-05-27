@@ -3,10 +3,10 @@ pdf-autofillr-cli chatbot <command>
 
 Commands to start and interact with the chatbot module.
 """
+
 from __future__ import annotations
 
 import argparse
-import json
 
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
@@ -25,9 +25,9 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
 
     # ── session ───────────────────────────────────────────────────────────
     ses = sub.add_parser("session", help="Start an interactive chatbot session (CLI mode)")
-    ses.add_argument("--pdf",     required=True, help="Path to blank PDF form")
-    ses.add_argument("--user",    required=True, help="User ID")
-    ses.add_argument("--session", default=None,  help="Resume existing session ID")
+    ses.add_argument("--pdf", required=True, help="Path to blank PDF form")
+    ses.add_argument("--user", required=True, help="User ID")
+    ses.add_argument("--session", default=None, help="Resume existing session ID")
 
     # ── sessions ──────────────────────────────────────────────────────────
     sub.add_parser("sessions", help="List all active sessions")
@@ -37,6 +37,7 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def run(args: argparse.Namespace) -> int:
     from pdf_autofillr_cli.utils import require_module
+
     require_module("chatbot", "pip install pdf-autofillr-chatbot")
 
     if not args.chatbot_command:
@@ -58,6 +59,7 @@ def _start_server(args: argparse.Namespace) -> int:
     try:
         import uvicorn
         from chatbot.entrypoints.fastapi_app import app
+
         print(f"\n  Starting chatbot server on http://{args.host}:{args.port}")
         print("  Swagger docs: http://localhost:{args.port}/docs\n")
         uvicorn.run(app, host=args.host, port=args.port, reload=args.reload)
@@ -69,9 +71,10 @@ def _start_server(args: argparse.Namespace) -> int:
 
 def _run_session(args: argparse.Namespace) -> int:
     import uuid
+
     from chatbot import chatbotClient  # type: ignore
-    from chatbot.storage.local_storage import LocalStorage
     from chatbot.config.form_config import FormConfig
+    from chatbot.storage.local_storage import LocalStorage
 
     storage = LocalStorage(data_path="./data", config_path="./configs")
     form_config = FormConfig.from_directory("./configs")
@@ -80,7 +83,7 @@ def _run_session(args: argparse.Namespace) -> int:
     session_id = args.session or str(uuid.uuid4())
     print(f"\n  Session: {session_id}")
     print(f"  PDF: {args.pdf}")
-    print(f"  Type 'exit' to quit.\n")
+    print("  Type 'exit' to quit.\n")
 
     while True:
         try:
@@ -103,18 +106,17 @@ def _run_session(args: argparse.Namespace) -> int:
         print(f"  Bot: {response}")
 
         if complete:
-            print(f"\n  ✅  Form complete.\n")
+            print("\n  ✅  Form complete.\n")
             break
 
     return 0
 
 
 def _list_sessions() -> int:
-    from chatbot.storage.local_storage import LocalStorage
-    storage = LocalStorage(data_path="./data", config_path="./configs")
     try:
         # list_user_sessions requires a user_id — show all session files instead
         import pathlib
+
         session_dir = pathlib.Path("./data")
         if not session_dir.exists():
             print("  No sessions found (data/ directory does not exist).")

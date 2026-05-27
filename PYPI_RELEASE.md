@@ -64,10 +64,10 @@ Edit **both** of these files and change the version number:
 
 ```
 packages/cli/pyproject.toml
-    version = "0.1.0"  →  "0.2.2"
+    version = "0.1.0"  →  "0.3.0"
 
 packages/cli/src/pdf_autofillr_cli/__init__.py
-    __version__ = "0.1.0"  →  "0.2.2"
+    __version__ = "0.1.0"  →  "0.3.0"
 ```
 
 Version format follows [Semantic Versioning](https://semver.org/):
@@ -80,7 +80,7 @@ Version format follows [Semantic Versioning](https://semver.org/):
 Add an entry under `## [Unreleased]` in `packages/cli/CHANGELOG.md` and the root `CHANGELOG.md`:
 
 ```markdown
-## [0.2.2] - 2026-05-15
+## [0.3.0] - 2026-05-15
 
 ### Added
 - `pdf-autofillr doctor` command — extended diagnostics
@@ -114,8 +114,8 @@ python -m build
 This creates:
 ```
 packages/cli/dist/
-├── pdf_autofillr_cli-0.2.2.tar.gz      ← source distribution
-└── pdf_autofillr_cli-0.2.2-py3-none-any.whl  ← wheel
+├── pdf_autofillr_cli-0.3.0.tar.gz      ← source distribution
+└── pdf_autofillr_cli-0.3.0-py3-none-any.whl  ← wheel
 ```
 
 ### Step 5 — Check the distribution
@@ -139,7 +139,7 @@ If prompted: username is `__token__`, password is your API token.
 
 ```bash
 # Wait ~60 seconds then install from PyPI to verify
-pip install "pdf-autofillr-cli==0.2.2" --force-reinstall
+pip install "pdf-autofillr-cli==0.3.0" --force-reinstall
 pdf-autofillr --version
 ```
 
@@ -150,8 +150,8 @@ Check the PyPI page: https://pypi.org/project/pdf-autofillr-cli/
 ```bash
 git add packages/cli/pyproject.toml packages/cli/src/pdf_autofillr_cli/__init__.py
 git add packages/cli/CHANGELOG.md CHANGELOG.md
-git commit -m "release: pdf-autofillr-cli v0.2.2"
-git tag cli-v0.2.2
+git commit -m "release: pdf-autofillr-cli v0.3.0"
+git tag cli-v0.3.0
 git push origin main --tags
 ```
 
@@ -164,10 +164,10 @@ The workflow at `.github/workflows/publish-pypi.yml` handles the rest.
 
 ```bash
 # 1. Bump version + update CHANGELOG + commit
-git commit -m "release: pdf-autofillr-cli v0.2.2"
+git commit -m "release: pdf-autofillr-cli v0.3.0"
 
 # 2. Tag and push — CI does the rest
-git tag cli-v0.2.2
+git tag cli-v0.3.0
 git push origin main --tags
 ```
 
@@ -193,7 +193,7 @@ pip install --index-url https://test.pypi.org/simple/ pdf-autofillr-cli
 
 | Version | Date | PyPI |
 |---------|------|------|
-| 0.2.2 | 2026-04-30 | https://pypi.org/project/pdf-autofillr-cli/0.2.2/ |
+| 0.3.0 | 2026-04-30 | https://pypi.org/project/pdf-autofillr-cli/0.3.0/ |
 
 ---
 

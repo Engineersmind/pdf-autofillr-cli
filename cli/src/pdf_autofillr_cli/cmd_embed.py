@@ -8,6 +8,7 @@ Example:
     pdf-autofillr-cli embed form.pdf --schema configs/form_keys.json
     pdf-autofillr-cli embed form.pdf --schema configs/form_keys.json --output form.embedded.pdf
 """
+
 from __future__ import annotations
 
 import argparse
@@ -23,19 +24,19 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument("pdf", help="Path to blank PDF form")
-    p.add_argument("--schema", "-s", required=True,
-                   help="Path to form_keys.json (field schema)")
-    p.add_argument("--output", "-o", default=None,
-                   help="Output path (default: <name>_embedded.pdf)")
+    p.add_argument("--schema", "-s", required=True, help="Path to form_keys.json (field schema)")
+    p.add_argument(
+        "--output", "-o", default=None, help="Output path (default: <name>_embedded.pdf)"
+    )
     p.set_defaults(func=run)
 
 
 def run(args: argparse.Namespace) -> int:
     try:
-        from pdf_autofillr_mapper import PDFPipeline, MapperConfig  # type: ignore
+        from pdf_autofillr_mapper import MapperConfig, PDFPipeline  # type: ignore
     except ImportError:
         print("\n  pdf-autofillr-mapper is not installed.")
-        print("  Install it with:  pip install \"pdf-autofillr[mapper]\"\n")
+        print('  Install it with:  pip install "pdf-autofillr[mapper]"\n')
         return 1
 
     if not os.path.exists(args.pdf):
@@ -50,11 +51,13 @@ def run(args: argparse.Namespace) -> int:
     pipeline = PDFPipeline(mapper_config=cfg)
 
     print(f"\n  Embedding {args.pdf}...")
-    result = asyncio.run(pipeline.run_all(
-        input_pdf_path=args.pdf,
-        input_data_path=args.schema,
-        keep_intermediates=True,
-    ))
+    result = asyncio.run(
+        pipeline.run_all(
+            input_pdf_path=args.pdf,
+            input_data_path=args.schema,
+            keep_intermediates=True,
+        )
+    )
 
     embedded = result["all_outputs"]["embedded_pdf"]
     print(f"  ✅  Embedded PDF: {embedded}\n")

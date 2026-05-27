@@ -3,6 +3,7 @@ pdf-autofillr-cli doc-upload <command>
 
 Extract data from uploaded documents (PDF, DOCX, XLSX, CSV …) and fill a PDF form.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -30,17 +31,18 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
         "process",
         help="Extract from a document and fill a PDF in one step",
     )
-    pr.add_argument("--doc",    required=True, help="Source document (PDF, DOCX, XLSX, CSV …)")
-    pr.add_argument("--pdf",    required=True, help="Blank PDF form to fill")
-    pr.add_argument("--schema", required=True, dest="schema_keys_path",
-                    help="Path to form_keys.json")
-    pr.add_argument("--user",   required=True, dest="user_id")
-    pr.add_argument("--id",     required=True, dest="pdf_doc_id", help="Document ID")
+    pr.add_argument("--doc", required=True, help="Source document (PDF, DOCX, XLSX, CSV …)")
+    pr.add_argument("--pdf", required=True, help="Blank PDF form to fill")
+    pr.add_argument(
+        "--schema", required=True, dest="schema_keys_path", help="Path to form_keys.json"
+    )
+    pr.add_argument("--user", required=True, dest="user_id")
+    pr.add_argument("--id", required=True, dest="pdf_doc_id", help="Document ID")
 
     # ── start (API server) ────────────────────────────────────────────────
     srv = sub.add_parser("start", help="Start the doc-upload API server")
-    srv.add_argument("--host",   default="0.0.0.0")
-    srv.add_argument("--port",   default=8002, type=int)
+    srv.add_argument("--host", default="0.0.0.0")
+    srv.add_argument("--port", default=8002, type=int)
     srv.add_argument("--reload", action="store_true")
 
     p.set_defaults(func=run)
@@ -48,6 +50,7 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def run(args: argparse.Namespace) -> int:
     from pdf_autofillr_cli.utils import require_module
+
     require_module("pdf_autofillr_doc_upload", "pip install pdf-autofillr-doc-upload")
 
     if not args.doc_command:
@@ -65,6 +68,7 @@ def run(args: argparse.Namespace) -> int:
 
 def _process(args: argparse.Namespace) -> int:
     import uuid
+
     from pdf_autofillr_doc_upload import DocUploadClient  # type: ignore
 
     # DocUploadClient() reads all config from env vars automatically
@@ -90,6 +94,7 @@ def _start_server(args: argparse.Namespace) -> int:
     try:
         import uvicorn
         from pdf_autofillr_doc_upload.entrypoints.fastapi_app import app  # type: ignore
+
         print(f"\n  Starting doc-upload server on http://{args.host}:{args.port}")
         uvicorn.run(app, host=args.host, port=args.port, reload=args.reload)
     except ImportError:

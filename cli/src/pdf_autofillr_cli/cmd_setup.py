@@ -9,10 +9,10 @@ First-time setup:
 Example:
     pdf-autofillr-cli setup
 """
+
 from __future__ import annotations
 
 import argparse
-import os
 import shutil
 from pathlib import Path
 
@@ -34,6 +34,7 @@ def run(args: argparse.Namespace) -> int:
     # Step 0: copy mapper configs
     try:
         from pdf_autofillr_mapper import copy_sample_configs  # type: ignore
+
         if not Path("configs").exists():
             copy_sample_configs(".")
             print("\n  OK  Created configs/ directory")
@@ -75,7 +76,9 @@ def run(args: argparse.Namespace) -> int:
             shutil.copytree(str(usage_src), str(local_usage))
             print("\n  OK  Created usage/ directory")
             print("  --> Open usage/run.md to get started")
-            print("  --> One guide per command: embed, fill, run, batch, chatbot, doc-upload, mapper, rag, plugins")
+            print(
+                "  --> One guide per command: embed, fill, run, batch, chatbot, doc-upload, mapper, rag, plugins"
+            )
         else:
             print("\n  OK  usage/ already exists -- skipping")
     else:
@@ -102,8 +105,8 @@ def _find_env_example() -> Path | None:
 
 def _find_usage_dir() -> Path | None:
     candidates = [
-        Path(__file__).parent / "usage",              # bundled in pip install
-        Path(__file__).parent.parent.parent / "usage", # dev install
+        Path(__file__).parent / "usage",  # bundled in pip install
+        Path(__file__).parent.parent.parent / "usage",  # dev install
     ]
     for c in candidates:
         if c.exists() and c.is_dir():

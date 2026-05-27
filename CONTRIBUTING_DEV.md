@@ -88,12 +88,12 @@ pytest tests/ --cov=src/pdf_autofillr_cli --cov-report=term-missing
 
 | Tag | PyPI package | Version |
 |-----|-------------|---------|
-| `cli-v*` | pdf-autofillr-cli | **0.2.2** |
+| `cli-v*` | pdf-autofillr-cli | **0.3.0** |
 
 ### Tagging a release
 
 ```bash
-git tag cli-v0.2.2 && git push origin cli-v0.2.2
+git tag cli-v0.3.0 && git push origin cli-v0.3.0
 ```
 
 CI will:

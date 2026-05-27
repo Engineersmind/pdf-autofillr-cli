@@ -1,0 +1,139 @@
+name: CI
+
+# Runs on every PR and push to main.
+# Covers: lint (ruff + black + isort), type check (mypy), pytest, CLI smoke test.
+# tests.yml handles the pytest matrix — this job focuses on code quality gates.
+#
+# A PR must pass ALL jobs here before it can merge.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── 1. Lint ─────────────────────────────────────────────────────────────────
+  lint:
+    name: Lint / Python 3.12
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install lint tools
+        run: pip install ruff>=0.4.0 black>=23.0.0 isort>=5.12.0 flake8>=6.0.0 flake8-bugbear>=23.0.0
+
+      - name: ruff — lint + import sort check
+        run: ruff check src/ tests/
+
+      - name: black — format check
+        run: black --check --diff src/ tests/
+
+      - name: isort — import order check
+        run: isort --check-only --diff src/ tests/
+
+      - name: flake8 — bug patterns
+        run: |
+          flake8 src/ tests/ \
+            --max-line-length=100 \
+            --extend-ignore=E203,W503 \
+            --per-file-ignores="tests/*:S101"
+
+  # ── 2. Type check ────────────────────────────────────────────────────────────
+  typecheck:
+    name: mypy / Python 3.12
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install mypy + package (no SDK — stubs only)
+        run: |
+          pip install mypy>=1.8.0 pytest
+          pip install -e "." --no-deps 2>/dev/null || true
+
+      - name: mypy — type check src/
+        run: |
+          mypy src/pdf_autofillr_cli/ \
+            --ignore-missing-imports \
+            --python-version=3.10 \
+            --strict-optional \
+            --warn-redundant-casts \
+            --warn-unused-ignores \
+            --no-error-summary
+
+  # ── 3. Smoke test ────────────────────────────────────────────────────────────
+  smoke:
+    name: CLI smoke / Python 3.12
+    runs-on: ubuntu-latest
+    needs: lint
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package (no SDK)
+        run: pip install -e "." --no-deps 2>/dev/null || pip install -e "." || true
+
+      - name: pdf-autofillr-cli --help
+        run: pdf-autofillr-cli --help
+
+      - name: pdf-autofillr-cli --version
+        run: pdf-autofillr-cli --version
+
+      - name: All subcommands respond to --help
+        run: |
+          for cmd in extract embed fill validate run batch status setup plugins; do
+            echo "--- $cmd ---"
+            pdf-autofillr-cli $cmd --help
+          done
+
+  # ── 4. Build check ───────────────────────────────────────────────────────────
+  build:
+    name: Build check / Python 3.12
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck]
+    defaults:
+      run:
+        working-directory: cli
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install build + twine
+        run: pip install build>=1.0.0 twine>=5.0.0
+
+      - name: Build wheel and sdist
+        run: python -m build
+
+      - name: twine check — validate package metadata
+        run: twine check dist/*

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pdf-autofillr-cli"
-version = "0.2.2"
+version = "0.3.0"
 description = "Unified CLI for all pdf-autofillr modules"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -31,10 +31,21 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    # testing
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
+    # formatting
     "black>=23.0.0",
     "isort>=5.12.0",
+    # linting
+    "ruff>=0.4.0",
+    "flake8>=6.0.0",
+    "flake8-bugbear>=23.0.0",
+    # type checking
+    "mypy>=1.8.0",
+    # build & release
+    "build>=1.0.0",
+    "twine>=5.0.0",
 ]
 
 [project.scripts]
@@ -53,14 +64,63 @@ where = ["src"]
 [tool.setuptools.package-data]
 pdf_autofillr_cli = ["USAGE.md", "usage/*.md"]
 
+# ── black ─────────────────────────────────────────────────────────────────────
 [tool.black]
 line-length = 100
 target-version = ["py310", "py311", "py312"]
 
+# ── isort ─────────────────────────────────────────────────────────────────────
 [tool.isort]
 profile = "black"
 line_length = 100
 
+# ── ruff ──────────────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "B",   # flake8-bugbear
+    "I",   # isort
+    "UP",  # pyupgrade
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E203",   # whitespace before ':' — black handles this
+    "E501",   # line too long — black handles this, string literals can't be wrapped
+    "B008",   # function calls in default arguments
+    "SIM108", # ternary operator — sometimes less readable
+    "SIM115", # context manager for NamedTemporaryFile — intentional (delete=False)
+    "SIM117", # nested with statements — more readable in tests
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "F811"]
+
+# ── mypy ──────────────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_error_summary = true
+
+# ── flake8 ───────────────────────────────────────────────────────────────────
+# Note: flake8 doesn't natively read [tool.flake8] from pyproject.toml without
+# the Flake8-pyproject plugin. This section is kept here for reference/IDEs.
+# The authoritative runtime config is cli/.flake8 which flake8 reads automatically.
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ["E203", "W503", "E501"]
+per-file-ignores = ["tests/*:S101"]
+
+# ── pytest ────────────────────────────────────────────────────────────────────
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"

@@ -2,8 +2,10 @@
 pdf-autofillr-cli — unified CLI for all pdf-autofillr modules.
 
 Quick commands:
-    pdf-autofillr-cli embed form.pdf --schema configs/form_keys.json dob
+    pdf-autofillr-cli extract form.pdf --output schema.json
+    pdf-autofillr-cli embed form.pdf --schema configs/form_keys.json
     pdf-autofillr-cli fill form.pdf --data data.json --output filled.pdf
+    pdf-autofillr-cli validate filled.pdf --schema schema.json
     pdf-autofillr-cli run form.pdf --data data.json --output filled.pdf
     pdf-autofillr-cli batch --template form.pdf --input data/ --output output/
 
@@ -15,24 +17,27 @@ Module commands:
     pdf-autofillr-cli plugins list
     pdf-autofillr-cli status
 """
+
 from __future__ import annotations
 
 import argparse
 import sys
 
-from pdf_autofillr_cli import __version__
 from pdf_autofillr_cli import (
-    cmd_embed,
-    cmd_fill,
-    cmd_run,
+    __version__,
     cmd_batch,
     cmd_chatbot,
     cmd_doc_upload,
+    cmd_embed,
+    cmd_extract,
+    cmd_fill,
     cmd_mapper,
-    cmd_rag,
     cmd_plugins,
-    cmd_status,
+    cmd_rag,
+    cmd_run,
     cmd_setup,
+    cmd_status,
+    cmd_validate,
 )
 
 
@@ -42,8 +47,10 @@ def build_parser() -> argparse.ArgumentParser:
         description=(
             "pdf-autofillr-cli CLI\n\n"
             "Quick commands:\n"
+            "  extract  Extract field schema from a PDF form\n"
             "  embed    Embed field metadata into a PDF template (once per template)\n"
             "  fill     Fill an embedded PDF with JSON data\n"
+            "  validate Validate a filled PDF against a field schema\n"
             "  run      Full pipeline: embed + fill in one shot\n"
             "  batch    Fill multiple PDFs from a data directory\n\n"
             "Module commands:\n"
@@ -58,7 +65,8 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "--version", "-v",
+        "--version",
+        "-v",
         action="version",
         version=f"pdf-autofillr-cli {__version__}",
     )
@@ -66,8 +74,10 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", metavar="COMMAND")
 
     # ── quick commands ────────────────────────────────────────────────────
+    cmd_extract.add_parser(subparsers)
     cmd_embed.add_parser(subparsers)
     cmd_fill.add_parser(subparsers)
+    cmd_validate.add_parser(subparsers)
     cmd_run.add_parser(subparsers)
     cmd_batch.add_parser(subparsers)
 

@@ -1,6 +1,8 @@
 """Shared fixtures for CLI tests."""
-import pytest
+
 from unittest.mock import MagicMock
+
+import pytest
 
 
 @pytest.fixture
@@ -36,9 +38,12 @@ def mock_doc_upload_client():
 @pytest.fixture
 def tmp_json(tmp_path):
     """Write a JSON file and return its path."""
+
     def _write(name: str, data) -> str:
         import json
+
         p = tmp_path / name
         p.write_text(json.dumps(data))
         return str(p)
+
     return _write

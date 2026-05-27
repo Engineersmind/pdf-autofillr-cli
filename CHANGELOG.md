@@ -12,7 +12,7 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 | Package | Latest | Changelog |
 |---------|--------|-----------|
-| pdf-autofillr-cli | 0.2.2 | [cli/CHANGELOG.md](cli/CHANGELOG.md) |
+| pdf-autofillr-cli | 0.3.0 | [cli/CHANGELOG.md](cli/CHANGELOG.md) |
 
 ---
 
@@ -24,6 +24,18 @@ Versioning: [Semantic Versioning](https://semver.org/)
 - `pdf-autofillr-cli doctor` — extended diagnostics with fix suggestions
 - Shell completion for bash, zsh, and fish
 - `--output json` flag on all commands for scripting
+
+---
+
+## [cli-0.3.0] — 2026-05-27
+
+### Added
+
+- `extract` — extract field schema from a PDF form, output as JSON
+- `validate` — validate a filled PDF against a field schema (`--strict` mode available)
+- `mypy`, `flake8`, `flake8-bugbear` added to dev dependencies
+- `[tool.mypy]` and `[tool.flake8]` config added to `pyproject.toml`
+- Tests: `test_cmd_extract_validate.py` covering both new commands
 
 ---
 

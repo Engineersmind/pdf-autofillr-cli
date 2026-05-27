@@ -9,6 +9,7 @@ Example:
     pdf-autofillr-cli fill form.pdf --data data.json --output filled.pdf
     pdf-autofillr-cli fill form.pdf --data '{"first_name": "Jane", "last_name": "Doe"}'
 """
+
 from __future__ import annotations
 
 import argparse
@@ -26,19 +27,17 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument("pdf", help="Path to blank PDF form")
-    p.add_argument("--data", "-d", required=True,
-                   help="JSON file path or inline JSON string")
-    p.add_argument("--output", "-o", default=None,
-                   help="Output path (default: <name>_filled.pdf)")
+    p.add_argument("--data", "-d", required=True, help="JSON file path or inline JSON string")
+    p.add_argument("--output", "-o", default=None, help="Output path (default: <name>_filled.pdf)")
     p.set_defaults(func=run)
 
 
 def run(args: argparse.Namespace) -> int:
     try:
-        from pdf_autofillr_mapper import PDFPipeline, MapperConfig  # type: ignore
+        from pdf_autofillr_mapper import MapperConfig, PDFPipeline  # type: ignore
     except ImportError:
         print("\n  pdf-autofillr-mapper is not installed.")
-        print("  Install it with:  pip install \"pdf-autofillr[mapper]\"\n")
+        print('  Install it with:  pip install "pdf-autofillr[mapper]"\n')
         return 1
 
     if not os.path.exists(args.pdf):
@@ -61,11 +60,13 @@ def run(args: argparse.Namespace) -> int:
     pipeline = PDFPipeline(mapper_config=cfg)
 
     print(f"\n  Filling {embedded_pdf}...")
-    result = asyncio.run(pipeline.fill(
-        embedded_pdf_path=embedded_pdf,
-        input_data_path=data_path,
-        output_path=args.output,
-    ))
+    result = asyncio.run(
+        pipeline.fill(
+            embedded_pdf_path=embedded_pdf,
+            input_data_path=data_path,
+            output_path=args.output,
+        )
+    )
 
     print(f"  ✅  Filled PDF: {result['output_file']}\n")
     return 0
@@ -83,19 +84,18 @@ def _find_embedded(pdf_path: str) -> str | None:
 def _resolve_data(data: str) -> str | None:
     """Return a file path to the JSON data — handle file or inline JSON."""
     import tempfile
+
     if os.path.exists(data):
         return data
     # Try parsing as inline JSON and write to temp file
     try:
         parsed = json.loads(data)
-        tmp = tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False, encoding="utf-8"
-        )
+        tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8")
         json.dump(parsed, tmp)
         tmp.close()
         # Note: caller is responsible for cleanup — file persists for duration of process
         return tmp.name
     except json.JSONDecodeError as e:
-        print(f"\n  ✗  Invalid data: not a file path and not valid JSON")
+        print("\n  ✗  Invalid data: not a file path and not valid JSON")
         print(f"     {e}\n")
         return None

@@ -6,6 +6,28 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.3.0] - 2026-05-27
+
+### Added
+- `extract` — extract field schema from a PDF form, writes to JSON
+  - `--output` to specify destination path (default: `<name>_schema.json`)
+  - `--pretty` flag for indented JSON output
+  - Creates output directory automatically if it doesn't exist
+- `validate` — validate a filled PDF against a field schema
+  - `--schema` required — accepts `form_keys.json` or `extract` output
+  - `--strict` flag to also fail on empty (not just missing) fields
+  - Local fallback validation via `pypdf` when SDK method unavailable
+- `mypy`, `flake8`, `flake8-bugbear` added to `[dev]` optional dependencies
+- `[tool.mypy]` and `[tool.flake8]` config sections added to `pyproject.toml`
+- Tests for `extract` and `validate` — `test_cmd_extract_validate.py`
+
+### Changed
+- Version bumped `0.2.2` → `0.3.0`
+- `main.py` updated: `extract` and `validate` registered in parser (quick commands block)
+- `__init__.py` updated: version string and docstring updated with new commands
+
+---
+
 ## [0.2.2] - 2026-05-23
 
 ### Fixed
@@ -65,7 +87,6 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 ### Added
 - Initial release of the unified CLI for all pdf-autofillr modules
 - `pdf-autofillr-cli` entry point — single command for the entire suite
-- `pdf-autofillr-cli` is the CLI command (not `pdf-autofillr`)
 - `status`, `setup`, `rag`, `chatbot`, `mapper`, `doc-upload`, `plugins` subcommands
 - Lazy module imports — CLI loads instantly even when only some modules are installed
 - Full test suite: 69 tests across unit and integration

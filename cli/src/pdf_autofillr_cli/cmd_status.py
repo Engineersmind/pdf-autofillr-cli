@@ -8,19 +8,19 @@ Checks:
 Example:
     pdf-autofillr-cli status
 """
+
 from __future__ import annotations
 
 import argparse
 import importlib
 import os
 
-
 MODULES = [
-    ("pdf_autofillr_mapper",     "mapper",     "pip install \"pdf-autofillr[mapper]\""),
-    ("chatbot",                  "chatbot",    "pip install \"pdf-autofillr[chatbot]\""),
-    ("pdf_autofillr_doc_upload", "doc-upload", "pip install \"pdf-autofillr[doc-upload]\""),
-    ("ragpdf",                   "rag",        "pip install \"pdf-autofillr[rag]\""),
-    ("pdf_autofillr_plugins",    "plugins",    "pip install pdf-autofillr-plugins"),
+    ("pdf_autofillr_mapper", "mapper", 'pip install "pdf-autofillr[mapper]"'),
+    ("chatbot", "chatbot", 'pip install "pdf-autofillr[chatbot]"'),
+    ("pdf_autofillr_doc_upload", "doc-upload", 'pip install "pdf-autofillr[doc-upload]"'),
+    ("ragpdf", "rag", 'pip install "pdf-autofillr[rag]"'),
+    ("pdf_autofillr_plugins", "plugins", "pip install pdf-autofillr-plugins"),
 ]
 
 # At least one of these API key vars must be set
