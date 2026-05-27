@@ -68,7 +68,7 @@ def _list(args: argparse.Namespace) -> int:
     all_plugins = manager.list_plugins(category=args.category)
 
     if args.as_json:
-        result = {}
+        result: dict[str, list] = {}
         for cat, names in all_plugins.items():
             result[cat] = []
             for name in names:
