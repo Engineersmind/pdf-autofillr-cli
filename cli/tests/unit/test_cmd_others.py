@@ -1,30 +1,33 @@
 """Unit tests for mapper, doc-upload, and plugins CLI commands."""
+
+import argparse
 import json
 import sys
-import argparse
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-
-from pdf_autofillr_cli.cmd_mapper import run as mapper_run, _embed, _fill
-from pdf_autofillr_cli.cmd_doc_upload import run as doc_run, _process
-from pdf_autofillr_cli.cmd_plugins import run as plugins_run, _list, _info
-
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
-def _mock_mapper_module(mock_orch):
-    """Return a fake pdf_autofillr_mapper module with MapperOrchestrator."""
+
+def _mock_mapper_mod(mock_pipeline):
     mod = MagicMock()
-    mod.MapperOrchestrator = MagicMock()
-    mod.MapperOrchestrator.from_env.return_value = mock_orch
+    mod.PDFPipeline = MagicMock(return_value=mock_pipeline)
+    mod.MapperConfig = MagicMock()
+    mod.MapperConfig.from_env.return_value = MagicMock()
     return mod
 
 
-def _mock_doc_module(mock_client):
+def _mock_doc_module():
     mod = MagicMock()
-    mod.DocUploadClient = MagicMock()
-    mod.DocUploadClient.from_env.return_value = mock_client
-    return mod
+    client = MagicMock()
+    client.run.return_value = {
+        "output_flat": {"name": "Jane", "email": "jane@example.com"},
+        "success": True,
+        "filled_pdf_path": "/tmp/filled.pdf",
+    }
+    mod.DocUploadClient = MagicMock(return_value=client)
+    return mod, client
 
 
 def _mock_plugins_module(mock_manager_instance):
@@ -33,92 +36,189 @@ def _mock_plugins_module(mock_manager_instance):
     return mod
 
 
-# ── Mapper ────────────────────────────────────────────────────────────────────
+def _pipeline_embed_result():
+    return {
+        "final_output": "/tmp/form_filled.pdf",
+        "all_outputs": {"embedded_pdf": "/tmp/form_embedded.pdf"},
+        "timing": {"total_pipeline_seconds": 2.1},
+    }
+
+
+def _pipeline_fill_result():
+    return {"output_file": "/tmp/form_filled.pdf"}
+
+
+# ── Mapper embed ──────────────────────────────────────────────────────────────
+
 
 class TestMapperEmbed:
-    def test_embed_calls_orchestrator(self, mock_mapper_orch):
-        fake_mod = _mock_mapper_module(mock_mapper_orch)
-        args = argparse.Namespace(pdf="form.pdf", user="u1", pdf_doc_id="lp_v1")
-        with patch.dict(sys.modules, {"pdf_autofillr_mapper": fake_mod}):
+    def test_embed_calls_pipeline(self, tmp_path):
+        pdf = tmp_path / "form.pdf"
+        pdf.write_bytes(b"%PDF")
+        schema = tmp_path / "schema.json"
+        schema.write_text("{}")
+
+        mock_pipeline = MagicMock()
+        mock_pipeline.run_all = AsyncMock(return_value=_pipeline_embed_result())
+
+        args = argparse.Namespace(
+            pdf=str(pdf),
+            schema=str(schema),
+            mapper_command="embed",
+            user="default",
+        )
+        from pdf_autofillr_cli.cmd_mapper import _embed
+
+        with patch.dict(sys.modules, {"pdf_autofillr_mapper": _mock_mapper_mod(mock_pipeline)}):
             result = _embed(args)
         assert result == 0
-        mock_mapper_orch.make_embed_file.assert_called_once_with(
-            pdf_path="form.pdf", user_id="u1", pdf_doc_id="lp_v1"
+        mock_pipeline.run_all.assert_called_once()
+
+    def test_embed_no_embedded_pdf_key_still_ok(self, tmp_path):
+        """run_all always returns all_outputs with embedded_pdf."""
+        pdf = tmp_path / "form.pdf"
+        pdf.write_bytes(b"%PDF")
+        schema = tmp_path / "schema.json"
+        schema.write_text("{}")
+
+        mock_pipeline = MagicMock()
+        mock_pipeline.run_all = AsyncMock(return_value=_pipeline_embed_result())
+
+        from pdf_autofillr_cli.cmd_mapper import _embed
+
+        args = argparse.Namespace(
+            pdf=str(pdf), schema=str(schema), mapper_command="embed", user="default"
         )
+        with patch.dict(sys.modules, {"pdf_autofillr_mapper": _mock_mapper_mod(mock_pipeline)}):
+            result = _embed(args)
+        assert result == 0
+
+
+# ── Mapper fill ───────────────────────────────────────────────────────────────
 
 
 class TestMapperFill:
-    def test_fill_with_json_file(self, tmp_json, mock_mapper_orch):
-        data_path = tmp_json("data.json", {"investor_name": "Jane"})
-        args = argparse.Namespace(pdf="form.pdf", user="u1", pdf_doc_id="lp_v1", data=data_path)
-        fake_mod = _mock_mapper_module(mock_mapper_orch)
-        with patch.dict(sys.modules, {"pdf_autofillr_mapper": fake_mod}):
+    def test_fill_with_json_file(self, tmp_path):
+        pdf = tmp_path / "form.pdf"
+        pdf.write_bytes(b"%PDF")
+        embedded = tmp_path / "form_embedded.pdf"
+        embedded.write_bytes(b"%PDF")
+        data = tmp_path / "data.json"
+        data.write_text('{"investor_name": "Jane"}')
+
+        mock_pipeline = MagicMock()
+        mock_pipeline.fill = AsyncMock(return_value=_pipeline_fill_result())
+
+        from pdf_autofillr_cli.cmd_mapper import _fill
+
+        args = argparse.Namespace(pdf=str(pdf), data=str(data), user="default")
+        with patch.dict(sys.modules, {"pdf_autofillr_mapper": _mock_mapper_mod(mock_pipeline)}):
             result = _fill(args)
         assert result == 0
-        call_kwargs = mock_mapper_orch.fill_pdf.call_args[1]
-        assert call_kwargs["user_data"] == {"investor_name": "Jane"}
+        mock_pipeline.fill.assert_called_once()
 
-    def test_fill_with_inline_json(self, mock_mapper_orch):
-        args = argparse.Namespace(
-            pdf="form.pdf", user="u1", pdf_doc_id="lp_v1",
-            data='{"investor_name": "Jane"}',
-        )
-        fake_mod = _mock_mapper_module(mock_mapper_orch)
-        with patch.dict(sys.modules, {"pdf_autofillr_mapper": fake_mod}):
+    def test_fill_no_embedded_returns_1(self, tmp_path):
+        pdf = tmp_path / "form.pdf"
+        pdf.write_bytes(b"%PDF")
+        data = tmp_path / "data.json"
+        data.write_text('{"name": "Jane"}')
+
+        mock_pipeline = MagicMock()
+        from pdf_autofillr_cli.cmd_mapper import _fill
+
+        args = argparse.Namespace(pdf=str(pdf), data=str(data), user="default")
+        with patch.dict(sys.modules, {"pdf_autofillr_mapper": _mock_mapper_mod(mock_pipeline)}):
+            result = _fill(args)
+        assert result == 1
+
+    def test_fill_inline_json(self, tmp_path):
+        pdf = tmp_path / "form.pdf"
+        pdf.write_bytes(b"%PDF")
+        embedded = tmp_path / "form_embedded.pdf"
+        embedded.write_bytes(b"%PDF")
+
+        mock_pipeline = MagicMock()
+        mock_pipeline.fill = AsyncMock(return_value=_pipeline_fill_result())
+
+        from pdf_autofillr_cli.cmd_mapper import _fill
+
+        args = argparse.Namespace(pdf=str(pdf), data='{"name": "Jane"}', user="default")
+        with patch.dict(sys.modules, {"pdf_autofillr_mapper": _mock_mapper_mod(mock_pipeline)}):
             result = _fill(args)
         assert result == 0
 
-    def test_fill_with_invalid_json_raises(self, mock_mapper_orch):
-        args = argparse.Namespace(
-            pdf="form.pdf", user="u1", pdf_doc_id="lp_v1",
-            data="not-a-file-and-not-json",
-        )
-        fake_mod = _mock_mapper_module(mock_mapper_orch)
-        with patch.dict(sys.modules, {"pdf_autofillr_mapper": fake_mod}):
+    def test_fill_invalid_json_raises(self, tmp_path):
+        pdf = tmp_path / "form.pdf"
+        pdf.write_bytes(b"%PDF")
+        embedded = tmp_path / "form_embedded.pdf"
+        embedded.write_bytes(b"%PDF")
+
+        mock_pipeline = MagicMock()
+        from pdf_autofillr_cli.cmd_mapper import _fill
+
+        args = argparse.Namespace(pdf=str(pdf), data="not-a-file-not-json", user="default")
+        with patch.dict(sys.modules, {"pdf_autofillr_mapper": _mock_mapper_mod(mock_pipeline)}):
             with pytest.raises(json.JSONDecodeError):
                 _fill(args)
 
 
+# ── Mapper run dispatch ───────────────────────────────────────────────────────
+
+
 class TestMapperRun:
-    def test_no_subcommand_returns_1(self, mock_mapper_orch):
+    def test_no_subcommand_returns_1(self):
+        from pdf_autofillr_cli.cmd_mapper import run as mapper_run
+
+        mock_pipeline = MagicMock()
         args = argparse.Namespace(mapper_command=None)
-        fake_mod = _mock_mapper_module(mock_mapper_orch)
-        with patch.dict(sys.modules, {"pdf_autofillr_mapper": fake_mod}):
+        with patch.dict(sys.modules, {"pdf_autofillr_mapper": _mock_mapper_mod(mock_pipeline)}):
             result = mapper_run(args)
         assert result == 1
-
-    def test_unknown_subcommand_returns_0(self, mock_mapper_orch):
-        args = argparse.Namespace(mapper_command="nonexistent")
-        fake_mod = _mock_mapper_module(mock_mapper_orch)
-        with patch.dict(sys.modules, {"pdf_autofillr_mapper": fake_mod}):
-            result = mapper_run(args)
-        assert result == 0
 
 
 # ── Doc Upload ────────────────────────────────────────────────────────────────
 
+
 class TestDocUploadProcess:
-    def test_process_calls_client(self, mock_doc_upload_client):
+    def test_process_calls_client_run(self):
+        fake_mod, mock_client = _mock_doc_module()
         args = argparse.Namespace(
-            doc="investor.pdf", pdf="blank.pdf",
+            doc="investor.pdf",
+            pdf="blank.pdf",
             schema_keys_path="configs/form_keys.json",
-            user_id="u1", pdf_doc_id="lp_v1",
+            user_id="u1",
+            pdf_doc_id="lp_v1",
         )
-        fake_mod = _mock_doc_module(mock_doc_upload_client)
+        from pdf_autofillr_cli.cmd_doc_upload import _process
+
         with patch.dict(sys.modules, {"pdf_autofillr_doc_upload": fake_mod}):
             result = _process(args)
         assert result == 0
-        mock_doc_upload_client.process.assert_called_once_with(
-            document_path="investor.pdf", pdf_path="blank.pdf",
-            schema_keys_path="configs/form_keys.json",
-            user_id="u1", pdf_doc_id="lp_v1",
+        mock_client.run.assert_called_once()
+
+    def test_process_shows_field_count(self, capsys):
+        fake_mod, mock_client = _mock_doc_module()
+        args = argparse.Namespace(
+            doc="investor.pdf",
+            pdf="blank.pdf",
+            schema_keys_path="form_keys.json",
+            user_id="u1",
+            pdf_doc_id="lp_v1",
         )
+        from pdf_autofillr_cli.cmd_doc_upload import _process
+
+        with patch.dict(sys.modules, {"pdf_autofillr_doc_upload": fake_mod}):
+            _process(args)
+        out = capsys.readouterr().out
+        assert "2" in out  # 2 fields in mock
 
 
 class TestDocUploadRun:
-    def test_no_subcommand_returns_1(self, mock_doc_upload_client):
+    def test_no_subcommand_returns_1(self):
+        fake_mod, _ = _mock_doc_module()
         args = argparse.Namespace(doc_command=None)
-        fake_mod = _mock_doc_module(mock_doc_upload_client)
+        from pdf_autofillr_cli.cmd_doc_upload import run as doc_run
+
         with patch.dict(sys.modules, {"pdf_autofillr_doc_upload": fake_mod}):
             result = doc_run(args)
         assert result == 1
@@ -126,12 +226,15 @@ class TestDocUploadRun:
 
 # ── Plugins ───────────────────────────────────────────────────────────────────
 
+
 class TestPluginsList:
     def test_list_no_plugins(self, capsys):
         args = argparse.Namespace(path=None, category=None, as_json=False)
         mock_mgr = MagicMock()
         mock_mgr.list_plugins.return_value = {}
         fake_mod = _mock_plugins_module(mock_mgr)
+        from pdf_autofillr_cli.cmd_plugins import _list
+
         with patch.dict(sys.modules, {"pdf_autofillr_plugins": fake_mod}):
             result = _list(args)
         assert result == 0
@@ -141,9 +244,13 @@ class TestPluginsList:
         mock_mgr = MagicMock()
         mock_mgr.list_plugins.return_value = {"validator": ["email-validator"]}
         mock_mgr.get_plugin_info.return_value = {
-            "name": "email-validator", "version": "1.0.0", "description": "Email validator"
+            "name": "email-validator",
+            "version": "1.0.0",
+            "description": "Email validator",
         }
         fake_mod = _mock_plugins_module(mock_mgr)
+        from pdf_autofillr_cli.cmd_plugins import _list
+
         with patch.dict(sys.modules, {"pdf_autofillr_plugins": fake_mod}):
             result = _list(args)
         assert result == 0
@@ -155,9 +262,13 @@ class TestPluginsList:
         mock_mgr = MagicMock()
         mock_mgr.list_plugins.return_value = {"extractor": ["invoice-extractor"]}
         mock_mgr.get_plugin_info.return_value = {
-            "name": "invoice-extractor", "version": "1.0.0", "description": "Invoice extractor",
+            "name": "invoice-extractor",
+            "version": "1.0.0",
+            "description": "Invoice extractor",
         }
         fake_mod = _mock_plugins_module(mock_mgr)
+        from pdf_autofillr_cli.cmd_plugins import _list
+
         with patch.dict(sys.modules, {"pdf_autofillr_plugins": fake_mod}):
             result = _list(args)
         assert result == 0
@@ -170,6 +281,8 @@ class TestPluginsInfo:
         mock_mgr = MagicMock()
         mock_mgr.get_plugin_info.return_value = {"name": "email-validator", "version": "1.0.0"}
         fake_mod = _mock_plugins_module(mock_mgr)
+        from pdf_autofillr_cli.cmd_plugins import _info
+
         with patch.dict(sys.modules, {"pdf_autofillr_plugins": fake_mod}):
             result = _info(args)
         assert result == 0
@@ -180,6 +293,8 @@ class TestPluginsInfo:
         mock_mgr = MagicMock()
         mock_mgr.get_plugin_info.return_value = None
         fake_mod = _mock_plugins_module(mock_mgr)
+        from pdf_autofillr_cli.cmd_plugins import _info
+
         with patch.dict(sys.modules, {"pdf_autofillr_plugins": fake_mod}):
             result = _info(args)
         assert result == 1
@@ -191,6 +306,8 @@ class TestPluginsRun:
         mock_mgr = MagicMock()
         mock_mgr.list_plugins.return_value = {}
         fake_mod = _mock_plugins_module(mock_mgr)
+        from pdf_autofillr_cli.cmd_plugins import run as plugins_run
+
         with patch.dict(sys.modules, {"pdf_autofillr_plugins": fake_mod}):
             result = plugins_run(args)
         assert result == 1

@@ -1,14 +1,15 @@
 """Unit tests for pdf_autofillr_cli.utils."""
+
 # import sys
 import pytest
-# from unittest.mock import patch
 
+# from unittest.mock import patch
 from pdf_autofillr_cli.utils import (
     chatbot_available,
-    rag_available,
-    mapper_available,
     doc_upload_available,
+    mapper_available,
     plugins_available,
+    rag_available,
     require_module,
 )
 
@@ -17,12 +18,14 @@ class TestModuleAvailability:
     def test_available_returns_true_for_installed(self):
         # 'json' is always available - use it as a stand-in
         from pdf_autofillr_cli.utils import _try_import
+
         ok, ver, err = _try_import("json")
         assert ok is True
         assert err == ""
 
     def test_unavailable_returns_false_for_missing(self):
         from pdf_autofillr_cli.utils import _try_import
+
         ok, ver, err = _try_import("this_module_does_not_exist_xyz")
         assert ok is False
         assert err != ""

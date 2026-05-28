@@ -1,73 +1,92 @@
 """
-pdf-autofillr status
+pdf-autofillr-cli status
 
-Checks which modules are installed and how they are configured.
-Delegates to the status checker in the umbrella package (packages/pdf_autofillr).
+Checks:
+  1. All pdf-autofillr modules are installed
+  2. Required environment variables are set
+
+Example:
+    pdf-autofillr-cli status
 """
+
 from __future__ import annotations
 
 import argparse
+import importlib
+import os
+
+MODULES = [
+    ("pdf_autofillr_mapper", "mapper", 'pip install "pdf-autofillr[mapper]"'),
+    ("chatbot", "chatbot", 'pip install "pdf-autofillr[chatbot]"'),
+    ("pdf_autofillr_doc_upload", "doc-upload", 'pip install "pdf-autofillr[doc-upload]"'),
+    ("ragpdf", "rag", 'pip install "pdf-autofillr[rag]"'),
+    ("pdf_autofillr_plugins", "plugins", "pip install pdf-autofillr-plugins"),
+]
+
+# At least one of these API key vars must be set
+LLM_KEY_VARS = [
+    "OPENAI_API_KEY",
+    "ANTHROPIC_API_KEY",
+    "GROQ_API_KEY",
+]
 
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
         "status",
-        help="Show which modules are installed and their configuration",
-        description=(
-            "Checks all pdf-autofillr modules and prints a summary of:\n"
-            "  - Which modules are installed\n"
-            "  - Config files present\n"
-            "  - Env variable settings\n"
-            "  - Inter-module connection status"
-        ),
-    )
-    p.add_argument(
-        "--path",
-        default=".",
-        help="Project directory to check (default: current directory)",
+        help="Check installed modules and environment variables",
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.set_defaults(func=run)
 
 
 def run(args: argparse.Namespace) -> int:
-    try:
-        from pdf_autofillr.status import run_status
-        run_status(args.path)
-    except ImportError:
-        # Fallback: do it ourselves if umbrella package not installed
-        _fallback_status()
-    return 0
+    print("\n  pdf-autofillr-cli status")
+    print("  " + "─" * 50)
 
+    # ── modules ───────────────────────────────────────────────────────────
+    print("\n  Modules")
+    print("  " + "─" * 50)
+    modules_ok = True
+    for module, name, hint in MODULES:
+        try:
+            mod = importlib.import_module(module)
+            ver = getattr(mod, "__version__", "?")
+            print(f"  ✅  {name:<14} {ver}")
+        except ImportError:
+            print(f"  ✗   {name:<14} not installed  →  {hint}")
+            modules_ok = False
 
-def _fallback_status() -> None:
-    """Minimal status when umbrella package is not present."""
-    from pdf_autofillr_cli.utils import (
-        chatbot_available,
-        rag_available,
-        mapper_available,
-        doc_upload_available,
-        plugins_available,
-    )
-
-    print("\n" + "=" * 60)
-    print("  pdf-autofillr status")
-    print("=" * 60)
-    print("\nModules")
-    print("-" * 60)
-
-    checks = [
-        ("chatbot",    chatbot_available,    "pip install pdf-autofillr-chatbot"),
-        ("rag",        rag_available,        "pip install pdf-autofillr-rag"),
-        ("mapper",     mapper_available,     "pip install pdf-autofillr-mapper"),
-        ("doc_upload", doc_upload_available, "pip install pdf-autofillr-doc-upload"),
-        ("plugins",    plugins_available,    "pip install pdf-autofillr-plugins"),
-    ]
-
-    for label, checker, hint in checks:
-        ok, ver, _ = checker()
-        if ok:
-            print(f"  ✅  {label:<12} v{ver}")
+    # ── environment ───────────────────────────────────────────────────────
+    print("\n  Environment")
+    print("  " + "─" * 50)
+    env_ok = False
+    for var in LLM_KEY_VARS:
+        val = os.environ.get(var, "")
+        if val and val != "your_openai_key_here":
+            print(f"  ✅  {var}")
+            env_ok = True
         else:
-            print(f"  ✗   {label:<12} not installed  →  {hint}")
+            print(f"  ✗   {var}  not set")
+
+    if not env_ok:
+        print("\n  No LLM API key found.")
+        print("  Run: pdf-autofillr-cli setup\n")
+        return 1
+
+    # ── .env file ─────────────────────────────────────────────────────────
+    print("\n  Config")
+    print("  " + "─" * 50)
+    if os.path.exists(".env"):
+        print("  ✅  .env file found")
+    else:
+        print("  ✗   .env not found  →  run: pdf-autofillr-cli setup")
 
     print()
+    if modules_ok and env_ok:
+        print("  Everything looks good. Ready to go!\n")
+    else:
+        print("  Fix the issues above then run: pdf-autofillr-cli status\n")
+
+    return 0 if (modules_ok and env_ok) else 1

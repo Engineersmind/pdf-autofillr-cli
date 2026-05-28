@@ -1,12 +1,12 @@
 """
-pdf-autofillr chatbot <command>
+pdf-autofillr-cli chatbot <command>
 
 Commands to start and interact with the chatbot module.
 """
+
 from __future__ import annotations
 
 import argparse
-import json
 
 
 def add_parser(subparsers: argparse._SubParsersAction) -> None:
@@ -25,9 +25,9 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
 
     # ── session ───────────────────────────────────────────────────────────
     ses = sub.add_parser("session", help="Start an interactive chatbot session (CLI mode)")
-    ses.add_argument("--pdf",     required=True, help="Path to blank PDF form")
-    ses.add_argument("--user",    required=True, help="User ID")
-    ses.add_argument("--session", default=None,  help="Resume existing session ID")
+    ses.add_argument("--pdf", required=True, help="Path to blank PDF form")
+    ses.add_argument("--user", required=True, help="User ID")
+    ses.add_argument("--session", default=None, help="Resume existing session ID")
 
     # ── sessions ──────────────────────────────────────────────────────────
     sub.add_parser("sessions", help="List all active sessions")
@@ -37,10 +37,11 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def run(args: argparse.Namespace) -> int:
     from pdf_autofillr_cli.utils import require_module
+
     require_module("chatbot", "pip install pdf-autofillr-chatbot")
 
     if not args.chatbot_command:
-        print("Usage: pdf-autofillr chatbot <command>")
+        print("Usage: pdf-autofillr-cli chatbot <command>")
         print("Commands: start, session, sessions")
         return 1
 
@@ -58,6 +59,7 @@ def _start_server(args: argparse.Namespace) -> int:
     try:
         import uvicorn
         from chatbot.entrypoints.fastapi_app import app
+
         print(f"\n  Starting chatbot server on http://{args.host}:{args.port}")
         print("  Swagger docs: http://localhost:{args.port}/docs\n")
         uvicorn.run(app, host=args.host, port=args.port, reload=args.reload)
@@ -68,16 +70,20 @@ def _start_server(args: argparse.Namespace) -> int:
 
 
 def _run_session(args: argparse.Namespace) -> int:
-    from chatbot import chatbotClient  # type: ignore
+    import uuid
 
-    client = chatbotClient.from_env()
-    session = client.create_session(
-        pdf_path=args.pdf,
-        user_id=args.user,
-        session_id=args.session,
-    )
-    print(f"\n  Session: {session.session_id}")
-    print(f"  Bot: {session.greeting}\n")
+    from chatbot import chatbotClient  # type: ignore
+    from chatbot.config.form_config import FormConfig
+    from chatbot.storage.local_storage import LocalStorage
+
+    storage = LocalStorage(data_path="./data", config_path="./configs")
+    form_config = FormConfig.from_directory("./configs")
+    client = chatbotClient(storage=storage, form_config=form_config)
+
+    session_id = args.session or str(uuid.uuid4())
+    print(f"\n  Session: {session_id}")
+    print(f"  PDF: {args.pdf}")
+    print("  Type 'exit' to quit.\n")
 
     while True:
         try:
@@ -92,25 +98,36 @@ def _run_session(args: argparse.Namespace) -> int:
             print("  Bot: Goodbye!")
             break
 
-        response = client.send_message(session.session_id, user_input)
-        print(f"  Bot: {response.message}")
+        response, complete, data = client.send_message(
+            user_id=args.user,
+            session_id=session_id,
+            message=user_input,
+        )
+        print(f"  Bot: {response}")
 
-        if response.pdf_filled:
-            print(f"\n  ✅  PDF filled: {response.filled_pdf_path}\n")
+        if complete:
+            print("\n  ✅  Form complete.\n")
             break
 
     return 0
 
 
 def _list_sessions() -> int:
-    from chatbot import chatbotClient  # type: ignore
-    client = chatbotClient.from_env()
     try:
-        sessions = client.list_sessions()
+        # list_user_sessions requires a user_id — show all session files instead
+        import pathlib
+
+        session_dir = pathlib.Path("./data")
+        if not session_dir.exists():
+            print("  No sessions found (data/ directory does not exist).")
+            return 0
+        sessions = list(session_dir.rglob("*.json"))
         if not sessions:
             print("  No active sessions.")
         else:
-            print(json.dumps(sessions, indent=2))
-    except AttributeError:
-        print("  list_sessions() not supported in this chatbot version.")
+            print(f"\n  Found {len(sessions)} session file(s):")
+            for s in sessions:
+                print(f"    {s}")
+    except Exception as e:
+        print(f"  Could not list sessions: {e}")
     return 0

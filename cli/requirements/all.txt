@@ -1,4 +1,3 @@
-# pdf-autofillr-cli — all modules
-# Install with: pip install "pdf-autofillr-cli[all]"
--r base.txt
+# pdf-autofillr-cli — all modules (same as base, everything included)
+# Install with: pip install pdf-autofillr-cli
 pdf-autofillr[all]>=1.1.0

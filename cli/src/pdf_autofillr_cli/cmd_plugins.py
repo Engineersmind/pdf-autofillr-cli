@@ -1,8 +1,9 @@
 """
-pdf-autofillr plugins <command>
+pdf-autofillr-cli plugins <command>
 
 Inspect, list, and validate installed plugins.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -19,16 +20,19 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
 
     # ── list ──────────────────────────────────────────────────────────────
     ls = sub.add_parser("list", help="List all discovered plugins")
-    ls.add_argument("--path",     default=None,
-                    help="Directory or module path to scan (default: installed plugins)")
-    ls.add_argument("--category", default=None,
-                    help="Filter by category: extractor, mapper, validator, filler, …")
-    ls.add_argument("--json",     action="store_true", dest="as_json",
-                    help="Output as JSON")
+    ls.add_argument(
+        "--path", default=None, help="Directory or module path to scan (default: installed plugins)"
+    )
+    ls.add_argument(
+        "--category",
+        default=None,
+        help="Filter by category: extractor, mapper, validator, filler, …",
+    )
+    ls.add_argument("--json", action="store_true", dest="as_json", help="Output as JSON")
 
     # ── info ──────────────────────────────────────────────────────────────
     inf = sub.add_parser("info", help="Show detailed info for a single plugin")
-    inf.add_argument("name",     help="Plugin name")
+    inf.add_argument("name", help="Plugin name")
     inf.add_argument("--category", default=None)
 
     p.set_defaults(func=run)
@@ -36,10 +40,11 @@ def add_parser(subparsers: argparse._SubParsersAction) -> None:
 
 def run(args: argparse.Namespace) -> int:
     from pdf_autofillr_cli.utils import require_module
+
     require_module("pdf_autofillr_plugins", "pip install pdf-autofillr-plugins")
 
     if not args.plugins_command:
-        print("Usage: pdf-autofillr plugins <command>")
+        print("Usage: pdf-autofillr-cli plugins <command>")
         print("Commands: list, info")
         return 1
 
@@ -63,7 +68,7 @@ def _list(args: argparse.Namespace) -> int:
     all_plugins = manager.list_plugins(category=args.category)
 
     if args.as_json:
-        result = {}
+        result: dict[str, list] = {}
         for cat, names in all_plugins.items():
             result[cat] = []
             for name in names:
@@ -103,7 +108,7 @@ def _info(args: argparse.Namespace) -> int:
 
     if not info:
         print(f"\n  Plugin '{args.name}' not found.")
-        print("  Try: pdf-autofillr plugins list\n")
+        print("  Try: pdf-autofillr-cli plugins list\n")
         return 1
 
     print(json.dumps(info, indent=2))

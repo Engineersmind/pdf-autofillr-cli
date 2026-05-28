@@ -19,5 +19,5 @@ docker run pdf-autofillr-cli:latest pdf-autofillr --help
 Tags matching `cli-v*` trigger the PyPI publish workflow automatically.
 
 ```bash
-git tag cli-v0.2.0 && git push origin cli-v0.2.0
+git tag cli-v0.3.0 && git push origin cli-v0.3.0
 ```

@@ -1,77 +1,126 @@
 [build-system]
-requires = ["setuptools>=65.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pdf-autofillr-cli"
-version = "0.1.1"
+version = "0.3.0"
 description = "Unified CLI for all pdf-autofillr modules"
 readme = "README.md"
-requires-python = ">=3.9"
-license = {text = "MIT"}
+requires-python = ">=3.10"
+license = "MIT"
 authors = [
-    {name = "PDF AutoFillr Team", email = "team@pdf-autofiller.com"}
+    {name = "Engineers Mind", email = "Support@pdffillr.ai"}
 ]
-keywords = ["pdf", "cli", "autofill", "command-line"]
+keywords = ["pdf", "cli", "autofill", "command-line", "form-filling"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Utilities",
 ]
 
-# Only hard dependency is the umbrella package
+# Full SDK is the only dependency — all modules included
 dependencies = [
-    "pdf-autofillr>=1.1.0",
+    "pdf-autofillr[all]>=1.1.0",
 ]
 
 [project.optional-dependencies]
-# Install with specific modules
-chatbot    = ["pdf-autofillr[chatbot]"]
-rag        = ["pdf-autofillr[rag]"]
-mapper     = ["pdf-autofillr[mapper]"]
-doc-upload = ["pdf-autofillr[doc-upload]"]
-all        = ["pdf-autofillr[all]"]
 dev = [
+    # testing
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
+    # formatting
     "black>=23.0.0",
     "isort>=5.12.0",
-    "mypy>=1.0.0",
+    # linting
+    "ruff>=0.4.0",
+    "flake8>=6.0.0",
+    "flake8-bugbear>=23.0.0",
+    # type checking
+    "mypy>=1.8.0",
+    # build & release
+    "build>=1.0.0",
+    "twine>=5.0.0",
 ]
 
 [project.scripts]
-pdf-autofillr = "pdf_autofillr_cli.main:main"
+pdf-autofillr-cli = "pdf_autofillr_cli.main:main"
 
 [project.urls]
-Homepage      = "https://github.com/Engineersmind/pdf-autofillr"
-Documentation = "https://github.com/Engineersmind/pdf-autofillr/tree/main/packages/cli"
-Repository    = "https://github.com/Engineersmind/pdf-autofillr"
-Issues        = "https://github.com/Engineersmind/pdf-autofillr/issues"
+Homepage      = "https://github.com/Engineersmind/pdf-autofillr-cli"
+Documentation = "https://github.com/Engineersmind/pdf-autofillr-cli/tree/main/cli"
+Repository    = "https://github.com/Engineersmind/pdf-autofillr-cli"
+Issues        = "https://github.com/Engineersmind/pdf-autofillr-cli/issues"
+Platform      = "https://pdffillr.ai"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+pdf_autofillr_cli = ["USAGE.md", "usage/*.md"]
+
+# ── black ─────────────────────────────────────────────────────────────────────
 [tool.black]
 line-length = 100
-target-version = ["py39", "py310", "py311", "py312"]
+target-version = ["py310", "py311", "py312"]
 
+# ── isort ─────────────────────────────────────────────────────────────────────
 [tool.isort]
 profile = "black"
 line_length = 100
 
-[tool.mypy]
-python_version = "3.9"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = false
+# ── ruff ──────────────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 100
+target-version = "py310"
 
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "B",   # flake8-bugbear
+    "I",   # isort
+    "UP",  # pyupgrade
+    "C4",  # flake8-comprehensions
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E203",   # whitespace before ':' — black handles this
+    "E501",   # line too long — black handles this, string literals can't be wrapped
+    "B008",   # function calls in default arguments
+    "SIM108", # ternary operator — sometimes less readable
+    "SIM115", # context manager for NamedTemporaryFile — intentional (delete=False)
+    "SIM117", # nested with statements — more readable in tests
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "F811"]
+
+# ── mypy ──────────────────────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = false
+no_error_summary = true
+
+# ── flake8 ───────────────────────────────────────────────────────────────────
+# Note: flake8 doesn't natively read [tool.flake8] from pyproject.toml without
+# the Flake8-pyproject plugin. This section is kept here for reference/IDEs.
+# The authoritative runtime config is cli/.flake8 which flake8 reads automatically.
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ["E203", "W503", "E501"]
+per-file-ignores = ["tests/*:S101"]
+
+# ── pytest ────────────────────────────────────────────────────────────────────
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
